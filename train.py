@@ -19,21 +19,6 @@ from collections import Counter
 
 import pdb
 
-def train_test_split(X, y, test_fraction=0.2, seed=10):
-    n = X.shape[0]
-    np.random.seed(seed)
-    idx = np.random.permutation(n)
-    idx_te = idx[0:int(test_fraction*n)]
-    idx_tr = idx[int(test_fraction * n):]
-    return X[idx_tr, :], y[idx_tr], X[idx_te, :], y[idx_te], idx_tr, idx_te
-
-def sample_batch(X, y, batch_size=1000):
-    idx = np.random.permutation(X.shape[0])[:batch_size]
-    return X[idx, :], y[idx, :]
-
-
-
-
 class VanillaNN(nn.Module):
     """
     A `vanilla` neural network.
@@ -102,7 +87,7 @@ def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_sam
     X_batch = torch.tensor(X_batch).float()
     return X_batch, y_batch, y_batch_err
 
-def train_test_split(y, y_err, concs, lbs, seed=seed, fraction_valid=0.1, fraction_test=0.1):
+def train_test_split(y, y_err, concs, lbs, seed=10, fraction_valid=0.1, fraction_test=0.1):
     np.random.seed(seed)
     n = concs.shape[0]
     idx = np.random.permutation(n)
