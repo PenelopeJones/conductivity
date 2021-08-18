@@ -150,7 +150,7 @@ def main(args):
         std_x = None
         ptf = ptx + 'X_{}_{}'.format(concs[0], lbs[0]).replace('.', '-') + '.npy'
         x = np.load(ptf)
-        in_dim = x.shape(-1)
+        in_dim = x.shape[-1]
 
     pdb.set_trace()
 
