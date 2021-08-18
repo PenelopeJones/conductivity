@@ -161,7 +161,7 @@ def main(args):
     pdb.set_trace()
 
     # Pre-train using the full dataset
-    model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
+    model = VanillaNN(in_dim=in_dim, out_dim=1, hidden_dims=hidden_dims)
     optimiser = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
     pdb.set_trace()
