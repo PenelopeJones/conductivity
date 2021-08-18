@@ -67,11 +67,9 @@ def system_subsample(conc, lb, n_samples, ptd):
     x = np.load(ptf)
     return np.random.choice(x, size=n_samples, replace=False)
 
-def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='data/'):
+def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
     nt = concs.shape[0]
-    pdb.set_trace()
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
-    pdb.set_trace()
     ids = np.random.choice(nt, size=n_systems, replace=False)
 
     y_batch = torch.tensor(y[ids]).float()
@@ -79,7 +77,7 @@ def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_sam
     X_batch = []
 
     for i in range(n_systems):
-        X_batch.append(system_subsample(concs[i], lbs[i], n_samples, ptd+'processed/'))
+        X_batch.append(system_subsample(concs[i], lbs[i], n_samples, ptd))
     pdb.set_trace()
     X_batch = np.vstack(X_batch)
     if mu_x is not None:
