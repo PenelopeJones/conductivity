@@ -101,7 +101,7 @@ def train_test_split(y, y_err, concs, lbs, seed=10, fraction_valid=0.1, fraction
 
     return data_train, data_val, data_test
 
-def x_scaler(concs, lbs, ptf):
+def x_scaler(concs, lbs, ptd):
     X = []
     for i in range(concs.shape[0]):
         conc = concs[i]
@@ -119,7 +119,7 @@ def x_scaler(concs, lbs, ptf):
 
 def main(args):
     ptd = args.ptd
-
+    ptx = ptd + 'processed/'
     # Model parameters
     hidden_dims = [8, 8]
     n_systems = 500
@@ -128,7 +128,7 @@ def main(args):
     epochs = 5000
     print_freq = 200
     seed = 10
-    pdb.set_trace()
+    standardise = False
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
     y = y.reshape(-1, 1)
@@ -138,19 +138,27 @@ def main(args):
     concs = concs.repeat(9).reshape(-1)
     lbs = np.load(ptd + 'bjerrum_lengths.npy')
     lbs = np.tile(lbs, 12).reshape(-1)
-    pdb.set_trace()
     data_train, data_valid, data_test = train_test_split(y, y_err, concs, lbs, seed=seed)
-    pdb.set_trace()
     (y_train, y_err_train, concs_train, lbs_train) = data_train
 
     # Get scalers, and scale the y_data
     if standardise:
-        mu_x, std_x = x_scaler(concs_train, lbs_train)
+        mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
+        in_dim = mu_x.shape[0]
     else:
         mu_x = None
         std_x = None
+        ptf = ptx + 'X_{}_{}'.format(concs[0], lbs[0]).replace('.', '-') + '.npy'
+        x = np.load(ptf)
+        in_dim = x.shape(-1)
+
+    pdb.set_trace()
+
+
     sc_y = StandardScaler()
     sc_y.fit_transform(y_train)
+
+    pdb.set_trace()
 
     # Pre-train using the full dataset
     model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
@@ -162,7 +170,7 @@ def main(args):
     for epoch in range(epochs):
         optimiser.zero_grad()
 
-        X_batch, y_batch, y_batch_err = sample_batch(concs, lbs, y, y_err, mu_x, std_x, n_systems, n_samples, ptd)
+        X_batch, y_batch, y_batch_err = sample_batch(concs, lbs, y, y_err, mu_x, std_x, n_systems, n_samples, ptx)
         local_pred_batch = model(x_batch)
 
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, -1)
