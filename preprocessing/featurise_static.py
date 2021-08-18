@@ -15,7 +15,10 @@ def main(args):
 
     conc = args.conc
     lb = args.lb
-    ptd = args.ptd + '{}/'.format(conc)
+    if conc == 0.001:
+        ptd = args.ptd + '0001/'
+    else:
+        ptd = args.ptd + '{}/'.format(conc)
     pts = args.pts
     nt = 25000
 
