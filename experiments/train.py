@@ -67,7 +67,7 @@ def system_subsample(conc, lb, n_samples, ptd):
     x = np.load(ptf)
     return np.random.choice(x, size=n_samples, replace=False)
 
-def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=5000, ptd='data/'):
+def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='data/'):
     nt = concs.shape[0]
     pdb.set_trace()
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
@@ -122,8 +122,8 @@ def main(args):
     ptx = ptd + 'processed/'
     # Model parameters
     hidden_dims = [8, 8]
-    n_systems = 500
-    n_samples = 2500
+    n_systems = 5
+    n_samples = 100
     lr = 0.01
     epochs = 5000
     print_freq = 200
