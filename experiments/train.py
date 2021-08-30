@@ -196,10 +196,11 @@ def main(args):
 
             pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
             pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
-            pred_tr = sc_y.inverse_transform(pred_tr)
-            y_tr = sc_y.inverse_transform(y_tr)
-            pred_val = sc_y.inverse_transform(pred_val)
-            y_val = sc_y.inverse_transform(y_val)
+
+            pred_tr = sc_y.inverse_transform(pred_tr.detach().numpy())
+            y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
+            pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
+            y_val = sc_y.inverse_transform(y_val.detach().numpy())
             print('Train RMSE: {:.2f}\t Valid RMSE: {:.2f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
                                                                                          np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                          r2_score(y_tr, pred_tr),
