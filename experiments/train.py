@@ -93,19 +93,18 @@ def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='.
     X_batch = torch.tensor(X_batch).float()
     return X_batch, y_batch, y_batch_err
 
-def train_test_split(y, y_err, concs, lbs, seed=10, fraction_valid=0.1, fraction_test=0.1):
+def train_test_split(data, seed=10, fraction_test=0.1):
     np.random.seed(seed)
+    (y, y_err, concs, lbs) = data
     n = concs.shape[0]
     idx = np.random.permutation(n)
     idx_te = idx[0:int(fraction_test*n)]
-    idx_val = idx[int(fraction_test*n):(int(fraction_test*n)+int(fraction_valid*n))]
-    idx_tr = idx[(int(fraction_test*n)+int(fraction_valid*n)):]
+    idx_tr = idx[int(fraction_test*n):]
 
     data_test = (y[idx_te], y_err[idx_te], concs[idx_te], lbs[idx_te])
-    data_val = (y[idx_val], y_err[idx_val], concs[idx_val], lbs[idx_val])
     data_train = (y[idx_tr], y_err[idx_tr], concs[idx_tr], lbs[idx_tr])
 
-    return data_train, data_val, data_test
+    return data_train, data_test
 
 def x_scaler(concs, lbs, ptd):
     X = []
@@ -149,13 +148,17 @@ def main(args):
     concs = concs[0:99]
     lbs = lbs[0:99]
 
+    data = (y, y_err, concs, lbs)
+
+    data_train_valid, data_test = train_test_split(data, seed=10)
+
     r2s_tr = []
     r2s_val = []
     rmses_tr = []
     rmses_val = []
 
     for seed in range(5):
-        data_train, data_valid, data_test = train_test_split(y, y_err, concs, lbs, seed=seed)
+        data_train, data_valid = train_test_split(data_train_valid, seed=seed)
         n_train = data_train[0].shape[0]
         n_valid = data_valid[0].shape[0]
         n_test = data_test[0].shape[0]
