@@ -71,8 +71,8 @@ def system_subsample(conc, lb, n_samples, ptd):
 def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
     nt = concs.shape[0]
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
-
-    ids = np.random.choice(nt, size=n_systems, replace=False)
+    ids = np.random.choice(99, size=n_systems, replace=False)
+    #ids = np.random.choice(nt, size=n_systems, replace=False)
     y_batch = torch.tensor(y[ids]).float()
     y_batch_err = torch.tensor(y_err[ids]).float()
     X_batch = []
@@ -120,10 +120,10 @@ def main(args):
     # Model parameters
     hidden_dims = [8, 8]
     n_systems = 5
-    n_samples = 100
+    n_samples = 1000
     lr = 0.01
-    epochs = 5000
-    print_freq = 200
+    epochs = 500
+    print_freq = 2
     seed = 10
     standardise = False
     # Load ion positions
@@ -137,7 +137,7 @@ def main(args):
     lbs = np.tile(lbs, 12).reshape(-1)
     data_train, data_valid, data_test = train_test_split(y, y_err, concs, lbs, seed=seed)
     (y_train, y_err_train, concs_train, lbs_train) = data_train
-
+    pdb.set_trace()
     # Get scalers, and scale the y_data
     if standardise:
         mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
@@ -162,14 +162,14 @@ def main(args):
         optimiser.zero_grad()
 
         X_batch, y_batch, y_batch_err = sample_batch(concs, lbs, y, y_err, mu_x, std_x, n_systems, n_samples, ptx)
-        pdb.set_trace()
+
         local_pred_batch = model(X_batch)
-        pdb.set_trace()
+
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, -1)
-        pdb.set_trace()
+
         # y is the mean over all samples
-        pred_batch = torch.mean(local_pred_batch, dim=1).reshape(n_systems, -1)
-        pdb.set_trace()
+        pred_batch = torch.mean(local_pred_batch, dim=1)
+
         loss = criterion(pred_batch, y_batch)
         pdb.set_trace()
         running_loss += loss
