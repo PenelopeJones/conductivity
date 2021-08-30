@@ -177,6 +177,8 @@ def main(args):
         n_valid = data_valid[0].shape[0]
         n_test = data_test[0].shape[0]
         (y_train, y_err_train, concs_train, lbs_train) = data_train
+        (y_val, y_err_val, concs_val, lbs_val) = data_valid
+
         # Get scalers, and scale the y_data
         if standardise:
             mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
@@ -190,6 +192,10 @@ def main(args):
 
         sc_y = StandardScaler()
         sc_y.fit_transform(y_train)
+        y_val = sc_y.transform(y_val)
+
+        data_train = (y_train, y_err_train, concs_train, lbs_train)
+        data_valid = (y_val, y_err_val, concs_val, lbs_val)
 
         # Pre-train using the full dataset
         model = VanillaNN(in_dim=in_dim, out_dim=1, hidden_dims=hidden_dims)
