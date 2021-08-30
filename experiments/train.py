@@ -127,13 +127,12 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [25, 25]
+    hidden_dims = [50, 50]
     n_systems = 5
     n_samples = 5000
     lr = 0.001
     epochs = 2000
-    print_freq = 100
-    seed = 10
+    print_freq = 250
     standardise = False
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -150,61 +149,79 @@ def main(args):
     concs = concs[0:99]
     lbs = lbs[0:99]
 
-    data_train, data_valid, data_test = train_test_split(y, y_err, concs, lbs, seed=seed)
-    n_train = data_train[0].shape[0]
-    n_valid = data_valid[0].shape[0]
-    n_test = data_test[0].shape[0]
-    (y_train, y_err_train, concs_train, lbs_train) = data_train
-    # Get scalers, and scale the y_data
-    if standardise:
-        mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
-        in_dim = mu_x.shape[0]
-    else:
-        mu_x = None
-        std_x = None
-        ptf = ptx + 'X_{}_{}'.format(concs[0], lbs[0]).replace('.', '-') + '.npy'
-        x = np.load(ptf)
-        in_dim = x.shape[-1]
+    r2s_tr = []
+    r2s_val = []
+    rmses_tr = []
+    rmses_val = []
 
-    sc_y = StandardScaler()
-    sc_y.fit_transform(y_train)
+    for seed in range(5):
+        data_train, data_valid, data_test = train_test_split(y, y_err, concs, lbs, seed=seed)
+        n_train = data_train[0].shape[0]
+        n_valid = data_valid[0].shape[0]
+        n_test = data_test[0].shape[0]
+        (y_train, y_err_train, concs_train, lbs_train) = data_train
+        # Get scalers, and scale the y_data
+        if standardise:
+            mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
+            in_dim = mu_x.shape[0]
+        else:
+            mu_x = None
+            std_x = None
+            ptf = ptx + 'X_{}_{}'.format(concs[0], lbs[0]).replace('.', '-') + '.npy'
+            x = np.load(ptf)
+            in_dim = x.shape[-1]
 
-    # Pre-train using the full dataset
-    model = VanillaNN(in_dim=in_dim, out_dim=1, hidden_dims=hidden_dims)
-    optimiser = optim.Adam(model.parameters(), lr=lr)
-    criterion = nn.MSELoss()
-    running_loss = 0
+        sc_y = StandardScaler()
+        sc_y.fit_transform(y_train)
 
-    for epoch in range(epochs):
-        optimiser.zero_grad()
+        # Pre-train using the full dataset
+        model = VanillaNN(in_dim=in_dim, out_dim=1, hidden_dims=hidden_dims)
+        optimiser = optim.Adam(model.parameters(), lr=lr)
+        criterion = nn.MSELoss()
+        running_loss = 0
 
-        X_batch, y_batch, y_batch_err = sample_batch(data_train, mu_x, std_x, n_systems, n_samples, ptx)
+        for epoch in range(epochs):
+            optimiser.zero_grad()
 
-        local_pred_batch = model(X_batch)
+            X_batch, y_batch, y_batch_err = sample_batch(data_train, mu_x, std_x, n_systems, n_samples, ptx)
 
-        local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
+            local_pred_batch = model(X_batch)
 
-        # y is the mean over all samples
-        pred_batch = torch.mean(local_pred_batch, dim=1)
+            local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
 
-        loss = criterion(pred_batch, y_batch)
-        running_loss += loss
-        if epoch % print_freq == 0:
-            print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
-            running_loss = 0
-            pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
-            pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
-            pred_tr = sc_y.inverse_transform(pred_tr.detach().numpy())
-            y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
-            pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
-            y_val = sc_y.inverse_transform(y_val.detach().numpy())
-            print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
-                                                                                         np.sqrt(mean_squared_error(y_val, pred_val)),
-                                                                                         r2_score(y_tr, pred_tr),
-                                                                                         r2_score(y_val, pred_val)))
+            # y is the mean over all samples
+            pred_batch = torch.mean(local_pred_batch, dim=1)
 
-        loss.backward()
-        optimiser.step()
+            loss = criterion(pred_batch, y_batch)
+            running_loss += loss
+            if epoch % print_freq == 0:
+                print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
+                running_loss = 0
+                pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
+                pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
+                pred_tr = sc_y.inverse_transform(pred_tr.detach().numpy())
+                y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
+                pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
+                y_val = sc_y.inverse_transform(y_val.detach().numpy())
+                print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
+                                                                                             np.sqrt(mean_squared_error(y_val, pred_val)),
+                                                                                             r2_score(y_tr, pred_tr),
+                                                                                             r2_score(y_val, pred_val)))
+
+            loss.backward()
+            optimiser.step()
+
+        r2s_tr.append(r2_score(y_tr, pred_tr))
+        rmses_tr.append(np.sqrt(mean_squared_error(y_tr, pred_tr)))
+        r2s_val.append(r2_score(y_val, pred_val))
+        rmses_val.append(np.sqrt(mean_squared_error(y_val, pred_val)))
+
+    r2s_tr = np.array(r2s_tr)
+    rmses_tr = np.array(rmses_tr)
+    r2s_val = np.array(r2s_val)
+    rmses_val = np.array(rmses_val)
+    print('RMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), r2s_tr))
+    print('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), r2s_val))
 
 
 
