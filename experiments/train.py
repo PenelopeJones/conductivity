@@ -202,7 +202,7 @@ def main(args):
             y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
             pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
             y_val = sc_y.inverse_transform(y_val.detach().numpy())
-            print('Train RMSE: {:.2f}\t Valid RMSE: {:.2f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
+            print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
                                                                                          np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                          r2_score(y_tr, pred_tr),
                                                                                          r2_score(y_val, pred_val)))
