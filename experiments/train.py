@@ -127,12 +127,12 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [10, 10]
+    hidden_dims = [12, 12]
     n_systems = 5
     n_samples = 2500
     lr = 0.001
-    epochs = 500
-    print_freq = 25
+    epochs = 2000
+    print_freq = 50
     seed = 10
     standardise = False
     # Load ion positions
