@@ -63,7 +63,7 @@ class VanillaNN(nn.Module):
 
         return self.layers[-1](x)
 
-    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
+    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=10000, ptd='../data/processed/'):
         X_batch, y_batch, y_batch_err = sample_batch(data, mu_x, std_x, n_systems, n_samples, ptd)
         local_pred_batch = self.forward(X_batch)
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
@@ -158,6 +158,7 @@ def main(args):
     rmses_val = []
 
     for seed in range(5):
+        print('\nTraining... seed {}'.format(seed))
         data_train, data_valid = train_test_split(data_train_valid, seed=seed)
         n_train = data_train[0].shape[0]
         n_valid = data_valid[0].shape[0]
@@ -206,7 +207,7 @@ def main(args):
                 y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
                 pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
                 y_val = sc_y.inverse_transform(y_val.detach().numpy())
-                print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}\n'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
+                print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
                                                                                              np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                              r2_score(y_tr, pred_tr),
                                                                                              r2_score(y_val, pred_val)))
@@ -223,8 +224,8 @@ def main(args):
     rmses_tr = np.array(rmses_tr)
     r2s_val = np.array(r2s_val)
     rmses_val = np.array(rmses_val)
-    print('RMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), r2s_tr))
-    print('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), r2s_val))
+    print('\nRMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), np.median(r2s_tr)))
+    print('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
 
 
 
