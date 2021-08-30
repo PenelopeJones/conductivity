@@ -126,11 +126,11 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [100, 100]
+    hidden_dims = [10, 10]
     n_systems = 5
-    n_samples = 5000
-    lr = 0.001
-    epochs = 2000
+    n_samples = 3000
+    lr = 0.0005
+    epochs = 2500
     print_freq = 250
     standardise = False
 
