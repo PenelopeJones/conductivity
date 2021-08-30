@@ -126,7 +126,7 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [10, 10]
+    hidden_dims = [200,]
     n_systems = 5
     n_samples = 3000
     lr = 0.0005
