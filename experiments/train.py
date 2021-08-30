@@ -65,17 +65,19 @@ class VanillaNN(nn.Module):
 def system_subsample(conc, lb, n_samples, ptd):
     ptf = ptd + 'X_{}_{}'.format(conc, lb).replace('.', '-') + '.npy'
     x = np.load(ptf)
-    return np.random.choice(x, size=n_samples, replace=False)
+    idx = np.random.choice(x.shape[0], size=n_samples, replace=False)
+    return x[idx]
 
 def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
     nt = concs.shape[0]
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
+    pdb.set_trace()
     ids = np.random.choice(nt, size=n_systems, replace=False)
-
+    pdb.set_trace()
     y_batch = torch.tensor(y[ids]).float()
     y_batch_err = torch.tensor(y_err[ids]).float()
     X_batch = []
-
+    pdb.set_trace()
     for i in range(n_systems):
         X_batch.append(system_subsample(concs[i], lbs[i], n_samples, ptd))
     pdb.set_trace()
