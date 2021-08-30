@@ -121,9 +121,9 @@ def main(args):
     hidden_dims = [8, 8]
     n_systems = 5
     n_samples = 1000
-    lr = 0.01
+    lr = 0.001
     epochs = 500
-    print_freq = 2
+    print_freq = 10
     seed = 10
     standardise = False
     # Load ion positions
@@ -171,11 +171,11 @@ def main(args):
         pred_batch = torch.mean(local_pred_batch, dim=1)
 
         loss = criterion(pred_batch, y_batch)
-        pdb.set_trace()
         running_loss += loss
         if epoch % print_freq == 0:
             print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
             running_loss = 0
+            pdb.set_trace()
             """
             pred_train = model(X_train).float().detach().numpy()
             pred_test = model(X_test).float().detach().numpy()
