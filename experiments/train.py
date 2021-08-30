@@ -127,12 +127,12 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [8, 8]
+    hidden_dims = [10, 10]
     n_systems = 5
-    n_samples = 1000
+    n_samples = 2500
     lr = 0.001
     epochs = 500
-    print_freq = 10
+    print_freq = 25
     seed = 10
     standardise = False
     # Load ion positions
@@ -155,7 +155,6 @@ def main(args):
     n_valid = data_valid[0].shape[0]
     n_test = data_test[0].shape[0]
     (y_train, y_err_train, concs_train, lbs_train) = data_train
-    pdb.set_trace()
     # Get scalers, and scale the y_data
     if standardise:
         mu_x, std_x = x_scaler(concs_train, lbs_train, ptx)
@@ -193,11 +192,8 @@ def main(args):
         if epoch % print_freq == 0:
             print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
             running_loss = 0
-            pdb.set_trace()
-
             pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
             pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
-
             pred_tr = sc_y.inverse_transform(pred_tr.detach().numpy())
             y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
             pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
