@@ -71,16 +71,13 @@ def system_subsample(conc, lb, n_samples, ptd):
 def sample_batch(concs, lbs, y, y_err, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
     nt = concs.shape[0]
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
-    pdb.set_trace()
+
     ids = np.random.choice(nt, size=n_systems, replace=False)
-    pdb.set_trace()
     y_batch = torch.tensor(y[ids]).float()
     y_batch_err = torch.tensor(y_err[ids]).float()
     X_batch = []
-    pdb.set_trace()
     for i in range(n_systems):
-        X_batch.append(system_subsample(concs[i], lbs[i], n_samples, ptd))
-    pdb.set_trace()
+        X_batch.append(system_subsample(concs[ids[i]], lbs[ids[i]], n_samples, ptd))
     X_batch = np.vstack(X_batch)
     if mu_x is not None:
         X_batch = (X_batch - mu_x) / std_x
@@ -152,34 +149,29 @@ def main(args):
         x = np.load(ptf)
         in_dim = x.shape[-1]
 
-    pdb.set_trace()
-
-
     sc_y = StandardScaler()
     sc_y.fit_transform(y_train)
-
-    pdb.set_trace()
 
     # Pre-train using the full dataset
     model = VanillaNN(in_dim=in_dim, out_dim=1, hidden_dims=hidden_dims)
     optimiser = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
-    pdb.set_trace()
     running_loss = 0
 
     for epoch in range(epochs):
         optimiser.zero_grad()
 
         X_batch, y_batch, y_batch_err = sample_batch(concs, lbs, y, y_err, mu_x, std_x, n_systems, n_samples, ptx)
-        local_pred_batch = model(x_batch)
-
+        pdb.set_trace()
+        local_pred_batch = model(X_batch)
+        pdb.set_trace()
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, -1)
-
+        pdb.set_trace()
         # y is the mean over all samples
         pred_batch = torch.mean(local_pred_batch, dim=1).reshape(n_systems, -1)
-
+        pdb.set_trace()
         loss = criterion(pred_batch, y_batch)
-
+        pdb.set_trace()
         running_loss += loss
         if epoch % print_freq == 0:
             print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
