@@ -63,7 +63,7 @@ class VanillaNN(nn.Module):
 
         return self.layers[-1](x)
 
-    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=10000, ptd='../data/processed/'):
+    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=20000, ptd='../data/processed/'):
         X_batch, y_batch, y_batch_err = sample_batch(data, mu_x, std_x, n_systems, n_samples, ptd)
         local_pred_batch = self.forward(X_batch)
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
@@ -77,7 +77,7 @@ def system_subsample(conc, lb, n_samples, ptd):
     idx = np.random.choice(x.shape[0], size=n_samples, replace=False)
     return x[idx]
 
-def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=500, ptd='../data/processed/'):
+def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=5000, ptd='../data/processed/'):
     (y, y_err, concs, lbs) = data
     nt = concs.shape[0]
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
@@ -126,13 +126,26 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [50, 50]
+    hidden_dims = [100, 100]
     n_systems = 5
     n_samples = 5000
     lr = 0.001
     epochs = 2000
     print_freq = 250
     standardise = False
+
+
+    experiment_name = 'A'
+    log_name = 'log_{}.txt'.format(experiment_name)
+    dir_to_save = 'results/{}/'.format(experiment_name)
+    import os
+    if not os.path.exists(dir_to_save):
+        os.makedirs(dir_to_save)
+        os.makedirs(dir_to_save + 'predictions/')
+        os.makedirs(dir_to_save + 'models/')
+
+    save_predictions = True
+    save_models = True
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
     y = y.reshape(-1, 1)
@@ -214,6 +227,17 @@ def main(args):
 
             loss.backward()
             optimiser.step()
+
+        if save_predictions:
+            np.save(dir_to_save + 'predictions/' + '{}{}_pred_tr.npy'.format(experiment_name, seed), pred_tr)
+            np.save(dir_to_save + 'predictions/' + '{}{}_y_tr.npy'.format(experiment_name, seed), y_tr)
+            np.save(dir_to_save + 'predictions/' + '{}{}_y_err_tr.npy'.format(experiment_name, seed), y_err_tr)
+            np.save(dir_to_save + 'predictions/' + '{}{}_pred_val.npy'.format(experiment_name, seed), pred_val)
+            np.save(dir_to_save + 'predictions/' + '{}{}_y_val.npy'.format(experiment_name, seed), y_val)
+            np.save(dir_to_save + 'predictions/' + '{}{}_y_err_val.npy'.format(experiment_name, seed), y_err_val)
+
+        if save_models:
+            torch.save(model.state_dict(), dir_to_save + 'models/' + 'model{}{}.pkl'.format(experiment_name, seed))
 
         r2s_tr.append(r2_score(y_tr, pred_tr))
         rmses_tr.append(np.sqrt(mean_squared_error(y_tr, pred_tr)))
