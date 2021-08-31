@@ -195,8 +195,7 @@ def main(args):
         (y_train, y_err_train, concs_train, lbs_train) = data_train
         (y_val, y_err_val, concs_val, lbs_val) = data_valid
 
-        maximum_r2(y_train, y_err_train, file=f)
-        pdb.set_trace()
+        maximum_r2(y_train, y_err_train, n_samples=50, file=f)
 
         # Get scalers, and scale the y_data
         if standardise:
