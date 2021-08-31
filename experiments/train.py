@@ -126,12 +126,12 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [200,]
+    hidden_dims = [20,20]
     n_systems = 5
-    n_samples = 3000
-    lr = 0.0005
-    epochs = 2500
-    print_freq = 250
+    n_samples = 5000
+    lr = 0.001
+    epochs = 3000
+    print_freq = 200
     standardise = False
 
 
@@ -156,10 +156,10 @@ def main(args):
     lbs = np.load(ptd + 'bjerrum_lengths.npy')
     lbs = np.tile(lbs, 12).reshape(-1)
 
-    y = y[0:99]
-    y_err = y_err[0:99]
-    concs = concs[0:99]
-    lbs = lbs[0:99]
+    #y = y[0:99]
+    #y_err = y_err[0:99]
+    #concs = concs[0:99]
+    #lbs = lbs[0:99]
 
     data = (y, y_err, concs, lbs)
 
