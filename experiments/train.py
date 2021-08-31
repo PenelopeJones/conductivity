@@ -127,7 +127,7 @@ def main(args):
     ptx = ptd + 'processed/'
     # Model parameters
     hidden_dims = [20,20]
-    n_systems = 5
+    n_systems = args.n_systems
     n_samples = 5000
     lr = 0.001
     epochs = 3000
@@ -265,6 +265,8 @@ if __name__ == "__main__":
                         help='Path to directory containing data.')
     parser.add_argument('--pts', type=str, default='../results/models/',
                         help='Path to directory containing data.')
+    parser.add_argument('--n_systems', type=int, default=10,
+                        help='Number of systems to use in training.')
 
     args = parser.parse_args()
 
