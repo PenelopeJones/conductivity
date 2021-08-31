@@ -93,6 +93,21 @@ def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=5000, ptd='
     X_batch = torch.tensor(X_batch).float()
     return X_batch, y_batch, y_batch_err
 
+def maximum_r2(y, y_err, n_samples=10, file=None):
+    r2s = []
+    for seed in range(n_samples):
+        np.random.seed(seed)
+        y_sampled = np.random.normal(y, y_err)
+        pdb.set_trace()
+        r2_sampled = r2_score(y_sampled, y)
+        r2s.append(r2_sampled)
+    r2s = np.array(r2s)
+    print('Max R2 = {:.2f} +- {:.2f}'.format(np.mean(r2s), np.std(r2s)))
+    if file is not None:
+        file.write('Max R2 = {:.2f} +- {:.2f}'.format(np.mean(r2s), np.std(r2s)))
+    pdb.set_trace()
+    return
+
 def train_test_split(data, seed=10, fraction_test=0.1):
     np.random.seed(seed)
     (y, y_err, concs, lbs) = data
@@ -126,7 +141,7 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [20,20]
+    hidden_dims = [60,60]
     experiment_name = args.experiment_name
     n_systems = args.n_systems
     n_samples = args.n_samples
@@ -171,11 +186,6 @@ def main(args):
     rmses_tr = []
     rmses_val = []
 
-    pdb.set_trace()
-
-
-
-
     f = open(dir_to_save + log_name, 'a')
 
     for seed in range(5):
@@ -186,6 +196,9 @@ def main(args):
         n_test = data_test[0].shape[0]
         (y_train, y_err_train, concs_train, lbs_train) = data_train
         (y_val, y_err_val, concs_val, lbs_val) = data_valid
+
+        maximum_r2(y_train, y_err_train, file=f)
+        pdb.set_trace()
 
         # Get scalers, and scale the y_data
         if standardise:
