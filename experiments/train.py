@@ -98,14 +98,12 @@ def maximum_r2(y, y_err, n_samples=10, file=None):
     for seed in range(n_samples):
         np.random.seed(seed)
         y_sampled = np.random.normal(y, y_err)
-        pdb.set_trace()
         r2_sampled = r2_score(y_sampled, y)
         r2s.append(r2_sampled)
     r2s = np.array(r2s)
     print('Max R2 = {:.2f} +- {:.2f}'.format(np.mean(r2s), np.std(r2s)))
     if file is not None:
         file.write('Max R2 = {:.2f} +- {:.2f}'.format(np.mean(r2s), np.std(r2s)))
-    pdb.set_trace()
     return
 
 def train_test_split(data, seed=10, fraction_test=0.1):
