@@ -191,7 +191,7 @@ def main(args):
             in_dim = x.shape[-1]
 
         sc_y = StandardScaler()
-        sc_y.fit_transform(y_train)
+        y_train = sc_y.fit_transform(y_train)
         y_val = sc_y.transform(y_val)
 
         data_train = (y_train, y_err_train, concs_train, lbs_train)
