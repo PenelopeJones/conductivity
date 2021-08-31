@@ -63,7 +63,7 @@ class VanillaNN(nn.Module):
 
         return self.layers[-1](x)
 
-    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=20000, ptd='../data/processed/'):
+    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=25000, ptd='../data/processed/'):
         X_batch, y_batch, y_batch_err = sample_batch(data, mu_x, std_x, n_systems, n_samples, ptd)
         local_pred_batch = self.forward(X_batch)
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
@@ -127,25 +127,26 @@ def main(args):
     ptx = ptd + 'processed/'
     # Model parameters
     hidden_dims = [20,20]
+    experiment_name = args.experiment_name
     n_systems = args.n_systems
-    n_samples = 5000
-    lr = 0.001
-    epochs = 3000
-    print_freq = 200
+    n_samples = args.n_samples
+    lr = args.lr
+    epochs = args.epochs
+    print_freq = args.print_freq
     standardise = False
+    save_predictions = True
+    save_models = True
 
-
-    experiment_name = 'A'
-    log_name = 'log_{}.txt'.format(experiment_name)
+    log_name = '{}_log.txt'.format(experiment_name)
+    args_name = '{}_log.txt'.format(experiment_name)
     dir_to_save = 'results/{}/'.format(experiment_name)
-    import os
+
     if not os.path.exists(dir_to_save):
         os.makedirs(dir_to_save)
         os.makedirs(dir_to_save + 'predictions/')
         os.makedirs(dir_to_save + 'models/')
-
-    save_predictions = True
-    save_models = True
+    with open(dir_to_save + args_name, 'a') as f:
+        f.write(str(args))
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
     y = y.reshape(-1, 1)
@@ -169,6 +170,13 @@ def main(args):
     r2s_val = []
     rmses_tr = []
     rmses_val = []
+
+    pdb.set_trace()
+
+
+
+
+    f = open(dir_to_save + log_name, 'a')
 
     for seed in range(5):
         print('\nTraining... seed {}'.format(seed))
@@ -219,6 +227,7 @@ def main(args):
             running_loss += loss
             if epoch % print_freq == 0:
                 print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
+                f.write('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
                 running_loss = 0
                 pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
                 pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
@@ -227,6 +236,10 @@ def main(args):
                 pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
                 y_val = sc_y.inverse_transform(y_val.detach().numpy())
                 print('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
+                                                                                             np.sqrt(mean_squared_error(y_val, pred_val)),
+                                                                                             r2_score(y_tr, pred_tr),
+                                                                                             r2_score(y_val, pred_val)))
+                f.write('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
                                                                                              np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                              r2_score(y_tr, pred_tr),
                                                                                              r2_score(y_val, pred_val)))
@@ -256,8 +269,9 @@ def main(args):
     rmses_val = np.array(rmses_val)
     print('\nRMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), np.median(r2s_tr)))
     print('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
-
-
+    f.write('\nRMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), np.median(r2s_tr)))
+    f.write('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
+    f.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -265,8 +279,18 @@ if __name__ == "__main__":
                         help='Path to directory containing data.')
     parser.add_argument('--pts', type=str, default='../results/models/',
                         help='Path to directory containing data.')
-    parser.add_argument('--n_systems', type=int, default=10,
+    parser.add_argument('--experiment_name', type=str, default='A',
+                        help='Name of experiment.')
+    parser.add_argument('--n_systems', type=int, default=25,
                         help='Number of systems to use in training.')
+    parser.add_argument('--n_samples', type=int, default=10000,
+                        help='Number of samples per system.')
+    parser.add_argument('--lr', type=float, default=0.0005,
+                        help='Number of systems to use in training.')
+    parser.add_argument('--epochs', type=int, default=5000,
+                        help='Number of training epochs.')
+    parser.add_argument('--print_freq', type=int, default=250,
+                        help='Print frequency.')
 
     args = parser.parse_args()
 
