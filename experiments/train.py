@@ -63,8 +63,8 @@ class VanillaNN(nn.Module):
 
         return self.layers[-1](x)
 
-    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=25000, ptd='../data/processed/'):
-        X_batch, y_batch, y_batch_err = sample_batch(data, mu_x, std_x, n_systems, n_samples, ptd)
+    def predict(self, data, mu_x=None, std_x=None, n_systems=5, n_samples=25000, ptx='../../data/processed/'):
+        X_batch, y_batch, y_batch_err = sample_batch(data, mu_x, std_x, n_systems, n_samples, ptx)
         local_pred_batch = self.forward(X_batch)
         local_pred_batch = local_pred_batch.reshape(n_systems, n_samples, 1)
         # y is the mean over all samples
@@ -77,7 +77,7 @@ def system_subsample(conc, lb, n_samples, ptd):
     idx = np.random.choice(x.shape[0], size=n_samples, replace=False)
     return x[idx]
 
-def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=5000, ptd='../data/processed/'):
+def sample_batch(data, mu_x=None, std_x=None, n_systems=5, n_samples=5000, ptd='../../data/processed/'):
     (y, y_err, concs, lbs) = data
     nt = concs.shape[0]
     assert concs.shape[0] == lbs.shape[0] == y.shape[0] == y_err.shape[0]
@@ -234,8 +234,8 @@ def main(args):
                 print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
                 f.write('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
                 running_loss = 0
-                pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train)
-                pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid)
+                pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train, ptx=ptx)
+                pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid, ptx=ptx)
                 pred_tr = sc_y.inverse_transform(pred_tr.detach().numpy())
                 y_tr = sc_y.inverse_transform(y_tr.detach().numpy())
                 pred_val = sc_y.inverse_transform(pred_val.detach().numpy())
