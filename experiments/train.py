@@ -151,14 +151,14 @@ def main(args):
     save_models = True
 
     log_name = '{}_log.txt'.format(experiment_name)
-    args_name = '{}_log.txt'.format(experiment_name)
+    args_name = '{}_args.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
 
     if not os.path.exists(pts):
         os.makedirs(pts)
         os.makedirs(pts + 'predictions/')
         os.makedirs(pts + 'models/')
-    with open(pts + args_name, 'a') as f:
+    with open(pts + args_name, 'w') as f:
         f.write(str(args))
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -179,10 +179,11 @@ def main(args):
     rmses_tr = []
     rmses_val = []
 
-    f = open(pts + log_name, 'a')
+    f = open(pts + log_name, 'w')
 
     for seed in range(5):
         print('\nTraining... seed {}'.format(seed))
+        f.write('\nTraining... seed {}'.format(seed))
         data_train, data_valid = train_test_split(data_train_valid, seed=seed)
         n_train = data_train[0].shape[0]
         n_valid = data_valid[0].shape[0]
@@ -231,8 +232,8 @@ def main(args):
             loss = criterion(pred_batch, y_batch)
             running_loss += loss
             if epoch % print_freq == 0:
-                print('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
-                f.write('Epoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
+                print('\nEpoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
+                f.write('\nEpoch {}\tLoss: {}'.format(epoch, running_loss / print_freq))
                 running_loss = 0
                 pred_tr, y_tr, y_err_tr = model.predict(data_train, n_systems=n_train, ptx=ptx)
                 pred_val, y_val, y_err_val = model.predict(data_valid, n_systems=n_valid, ptx=ptx)
@@ -244,7 +245,7 @@ def main(args):
                                                                                              np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                              r2_score(y_tr, pred_tr),
                                                                                              r2_score(y_val, pred_val)))
-                f.write('Train RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
+                f.write('\nTrain RMSE: {:.6f}\t Valid RMSE: {:.6f}\t Train R2: {:.2f}\t Valid R2: {:.2f}'.format(np.sqrt(mean_squared_error(y_tr, pred_tr)),
                                                                                              np.sqrt(mean_squared_error(y_val, pred_val)),
                                                                                              r2_score(y_tr, pred_tr),
                                                                                              r2_score(y_val, pred_val)))
@@ -273,9 +274,9 @@ def main(args):
     r2s_val = np.array(r2s_val)
     rmses_val = np.array(rmses_val)
     print('\nRMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), np.median(r2s_tr)))
-    print('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
+    print('\nRMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
     f.write('\nRMSE (train):{:.6f}\tR2 (train):{:.2f}'.format(np.median(rmses_tr), np.median(r2s_tr)))
-    f.write('RMSE (val):{:.6f}\tR2 (val):{:.2f}'.format(np.median(rmses_val), np.median(r2s_val)))
+    f.write('\nRMSE (val):{:.6f}\tR2 (val):{:.2f}\n'.format(np.median(rmses_val), np.median(r2s_val)))
     f.close()
 
 if __name__ == "__main__":
