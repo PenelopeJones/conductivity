@@ -139,7 +139,7 @@ def main(args):
     ptd = args.ptd
     ptx = ptd + 'processed/'
     # Model parameters
-    hidden_dims = [60,60]
+    hidden_dims = args.hidden_dims
     experiment_name = args.experiment_name
     n_systems = args.n_systems
     n_samples = args.n_samples
@@ -152,13 +152,13 @@ def main(args):
 
     log_name = '{}_log.txt'.format(experiment_name)
     args_name = '{}_log.txt'.format(experiment_name)
-    dir_to_save = 'results/{}/'.format(experiment_name)
+    pts = '../results/{}/'.format(experiment_name)
 
-    if not os.path.exists(dir_to_save):
-        os.makedirs(dir_to_save)
-        os.makedirs(dir_to_save + 'predictions/')
-        os.makedirs(dir_to_save + 'models/')
-    with open(dir_to_save + args_name, 'a') as f:
+    if not os.path.exists(pts):
+        os.makedirs(pts)
+        os.makedirs(pts + 'predictions/')
+        os.makedirs(pts + 'models/')
+    with open(pts + args_name, 'a') as f:
         f.write(str(args))
     # Load ion positions
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -170,11 +170,6 @@ def main(args):
     lbs = np.load(ptd + 'bjerrum_lengths.npy')
     lbs = np.tile(lbs, 12).reshape(-1)
 
-    #y = y[0:99]
-    #y_err = y_err[0:99]
-    #concs = concs[0:99]
-    #lbs = lbs[0:99]
-
     data = (y, y_err, concs, lbs)
 
     data_train_valid, data_test = train_test_split(data, seed=10)
@@ -184,7 +179,7 @@ def main(args):
     rmses_tr = []
     rmses_val = []
 
-    f = open(dir_to_save + log_name, 'a')
+    f = open(pts + log_name, 'a')
 
     for seed in range(5):
         print('\nTraining... seed {}'.format(seed))
@@ -258,15 +253,15 @@ def main(args):
             optimiser.step()
 
         if save_predictions:
-            np.save(dir_to_save + 'predictions/' + '{}{}_pred_tr.npy'.format(experiment_name, seed), pred_tr)
-            np.save(dir_to_save + 'predictions/' + '{}{}_y_tr.npy'.format(experiment_name, seed), y_tr)
-            np.save(dir_to_save + 'predictions/' + '{}{}_y_err_tr.npy'.format(experiment_name, seed), y_err_tr)
-            np.save(dir_to_save + 'predictions/' + '{}{}_pred_val.npy'.format(experiment_name, seed), pred_val)
-            np.save(dir_to_save + 'predictions/' + '{}{}_y_val.npy'.format(experiment_name, seed), y_val)
-            np.save(dir_to_save + 'predictions/' + '{}{}_y_err_val.npy'.format(experiment_name, seed), y_err_val)
+            np.save(pts + 'predictions/' + '{}{}_pred_tr.npy'.format(experiment_name, seed), pred_tr)
+            np.save(pts + 'predictions/' + '{}{}_y_tr.npy'.format(experiment_name, seed), y_tr)
+            np.save(pts + 'predictions/' + '{}{}_y_err_tr.npy'.format(experiment_name, seed), y_err_tr)
+            np.save(pts + 'predictions/' + '{}{}_pred_val.npy'.format(experiment_name, seed), pred_val)
+            np.save(pts + 'predictions/' + '{}{}_y_val.npy'.format(experiment_name, seed), y_val)
+            np.save(pts + 'predictions/' + '{}{}_y_err_val.npy'.format(experiment_name, seed), y_err_val)
 
         if save_models:
-            torch.save(model.state_dict(), dir_to_save + 'models/' + 'model{}{}.pkl'.format(experiment_name, seed))
+            torch.save(model.state_dict(), pts + 'models/' + 'model{}{}.pkl'.format(experiment_name, seed))
 
         r2s_tr.append(r2_score(y_tr, pred_tr))
         rmses_tr.append(np.sqrt(mean_squared_error(y_tr, pred_tr)))
@@ -285,12 +280,13 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ptd', type=str, default='../data/',
-                        help='Path to directory containing data.')
-    parser.add_argument('--pts', type=str, default='../results/models/',
+    parser.add_argument('--ptd', type=str, default='../../data/',
                         help='Path to directory containing data.')
     parser.add_argument('--experiment_name', type=str, default='A',
                         help='Name of experiment.')
+    parser.add_argument('--hidden_dims', nargs='+', type=int,
+                        default=[100, 100],
+                        help='Dimensionality of network hidden layers.')
     parser.add_argument('--n_systems', type=int, default=25,
                         help='Number of systems to use in training.')
     parser.add_argument('--n_samples', type=int, default=10000,
