@@ -43,8 +43,7 @@ def main(args):
     cat_sym = 'Na'
     an_sym = 'Cl'
     species = [an_sym, cat_sym]
-    numbers = [an_sym]*n_anions + [cat_sym]*n_cations
-    pdb.set_trace()
+    symbols = [an_sym]*n_anions + [cat_sym]*n_cations
     soap_generator = SOAP(species=species, periodic=True,
                           rcut=rcut, nmax=nmax, lmax=lmax,
                           sparse=sparse)
@@ -73,9 +72,10 @@ def main(args):
         #solvents = solvent_positions[snapshot_id, :, :]
         positions = np.vstack([anions, cations])
         pdb.set_trace()
-        system = Atoms(positions=positions, numbers=numbers,
+        system = Atoms(symbols=symbols, positions=positions,
                        cell=[box_length, box_length, box_length],
                        pbc=True)
+        pdb.set_trace()
         soap = soap_generator.create(system)
         pdb.set_trace()
         x.append(soap)
