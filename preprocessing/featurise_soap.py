@@ -76,7 +76,6 @@ def main(args):
                        pbc=True)
         soap = soap_generator.create(system, positions=list(range(0, n_anions)))
         x.append(soap)
-        pdb.set_trace()
 
         np.save(ptf, np.vstack(x))
         if i % args.print_freq == 0:
