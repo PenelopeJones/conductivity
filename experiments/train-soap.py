@@ -73,7 +73,7 @@ class VanillaNN(nn.Module):
 
 def system_subsample(conc, lb, n_samples, ptd):
     ptf = ptd + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
-    x = np.load(ptf)
+    x = np.load(ptf, allow_pickle=True)
     idx = np.random.choice(x.shape[0], size=n_samples, replace=False)
     return x[idx]
 
@@ -125,7 +125,7 @@ def x_scaler(concs, lbs, ptd):
         conc = concs[i]
         lb = lbs[i]
         ptf = ptd + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
-        x = np.load(ptf)
+        x = np.load(ptf, allow_pickle=True)
         print('Conc {}\t lB {}:\t N = {}'.format(conc, lb, x.shape[0]))
         X.append(x)
     X = np.vstack(X)
@@ -146,7 +146,7 @@ def main(args):
     lr = args.lr
     epochs = args.epochs
     print_freq = args.print_freq
-    standardise = False
+    standardise = True
     save_predictions = True
     save_models = True
 
