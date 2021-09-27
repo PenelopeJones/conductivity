@@ -27,11 +27,11 @@ def main(args):
 
     # SOAP descriptor parameters
     rcut = 5.0
-    nmax = 4
-    lmax = 4
+    nmax = 6
+    lmax = 5
     sparse = False
 
-    ptf = pts + 'X_{}_{}'.format(conc, lb).replace('.', '-') + '.npy'
+    ptf = pts + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
 
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
@@ -51,7 +51,7 @@ def main(args):
 
     x = []
 
-    n_snaps = int(0.5*nt / n_cations) + 1 # number of snapshots needed to get dataset size > nt
+    n_snaps = int(nt / n_anions) + 1 # number of snapshots needed to get dataset size > nt
 
     skip_snaps = n_snapshots // n_snaps
     print(skip_snaps)
@@ -71,13 +71,10 @@ def main(args):
         cations = cation_positions[snapshot_id, :, :]
         #solvents = solvent_positions[snapshot_id, :, :]
         positions = np.vstack([anions, cations])
-        pdb.set_trace()
         system = Atoms(symbols=symbols, positions=positions,
                        cell=[box_length, box_length, box_length],
                        pbc=True)
-        pdb.set_trace()
-        soap = soap_generator.create(system)
-        pdb.set_trace()
+        soap = soap_generator.create(system, positions=list(range(0, n_anions)))
         x.append(soap)
         pdb.set_trace()
 
