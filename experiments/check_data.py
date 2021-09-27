@@ -27,11 +27,12 @@ def main(args):
 
             try:
                 X = np.load(ptf, allow_pickle=True)
-                print('\nConc: {}\t lB: {}\tN:{}, Dim:{}'.format(conc, lb, X.shape[0], X.shape[1]))
-                print(X.shape)
+                if X.shape[0] < 25000:
+                    print('Conc: {}\t lB: {}\tN:{}, Dim:{}'.format(conc, lb, X.shape[0], X.shape[1]))
             except:
-                errors.append('Conc: {}\t lB: {}\t\n'.format(conc, lb))
-    print(errors)
+                errors.append('Conc: {}\t lB: {}'.format(conc, lb))
+    for i in range(len(errors)):
+        print(errors[i])
 
 
 
