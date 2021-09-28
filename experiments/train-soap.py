@@ -121,18 +121,30 @@ def train_test_split(data, seed=10, fraction_test=0.1):
 
 def x_scaler(concs, lbs, ptd):
     X = []
+    mus = []
+    ns = []
+    vars = []
     for i in range(concs.shape[0]):
         conc = concs[i]
         lb = lbs[i]
         ptf = ptd + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
-        print('Conc {}\t lB {}:\t N = {}'.format(conc, lb, x.shape[0]))
-        X.append(x)
-    X = np.vstack(X)
-    mu = np.mean(X, axis=0)
-    std = np.std(X, axis=0)
-    print(mu)
-    print(std)
+        mu_i = np.mean(x, axis=0)
+        var_i = np.var(x, axis=0)
+        n_i = x.shape[0]
+        mus.append(mu_i)
+        vars.append(var_i)
+        ns.append(n_i)
+    pdb.set_trace()
+    mus = np.vstack(mus)
+    ns = np.hstack(ns)
+    vars = np.vstack(vars)
+    pdb.set_trace()
+    mu = ns*mus / np.sum(ns)
+    var = ns*(vars + (mus - mu)**2) / np.sum(ns)
+    pdb.set_trace()
+    std = np.sqrt(var)
+    pdb.set_trace()
     return mu, std
 
 def main(args):
