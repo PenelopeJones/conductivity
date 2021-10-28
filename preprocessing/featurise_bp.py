@@ -63,7 +63,6 @@ def main(args):
 
     i = 0
 
-
     for snapshot_id in range(0, n_snapshots, skip_snaps):
         t0 = time.time()
 

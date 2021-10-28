@@ -1,11 +1,11 @@
 #! /bin/bash
-experiment_name=A
-n_systems=25
-n_samples=5000
-lr=0.0001
-epochs=10000
-print_freq=250
+experiment_name=MPI_A
+n_systems=5
+n_samples=500
+lr=0.001
+epochs=500
+print_freq=20
 
-python ../train.py --hidden_dims 100 100 --experiment_name ${experiment_name} \
+mpirun -n 4 ../train-soap-mpi.py --hidden_dims 100 --experiment_name ${experiment_name} \
 --n_systems ${n_systems} --n_samples ${n_samples} --lr ${lr} --epochs ${epochs} \
---print_freq ${print_freq} 
+--print_freq ${print_freq}

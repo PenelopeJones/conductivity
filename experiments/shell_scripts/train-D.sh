@@ -1,5 +1,5 @@
 #! /bin/bash
-experiment_name=A
+experiment_name=D
 n_systems=40
 n_samples=5000
 lr=0.0001
