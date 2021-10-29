@@ -66,7 +66,7 @@ def main(args):
 
     # Load training and validation data
     X_train, ns_train, X_valid, ns_valid, mu_x, std_x = data_loader(concs_train, lbs_train, concs_valid, lbs_valid, ptx)
-    n_train = X_train.shape[0]
+
     # Scale y data
     sc_y = StandardScaler()
     y_train = torch.tensor(sc_y.fit_transform(true_train), dtype=torch.float32).reshape(-1, 1)
@@ -88,6 +88,7 @@ def main(args):
     for epoch in range(ae_epochs):
         ae_optimiser.zero_grad()
 
+        n_train = X_train.shape[0]
         idx = np.random.permutation(n_train)[0:batch_size]
 
         Z_tr = encoder(X_train[idx])
@@ -110,15 +111,14 @@ def main(args):
     torch.save(encoder.state_dict(), pts + 'models/' + 'encoder{}{}_{}.pkl'.format(experiment_name, n_split, run_id))
     torch.save(decoder.state_dict(), pts + 'models/' + 'decoder{}{}_{}.pkl'.format(experiment_name, n_split, run_id))
 
+    t0 = time.time()
+
     model = VanillaNN(in_dim=latent_dim, out_dim=1, hidden_dims=hidden_dims)
     criterion = nn.MSELoss()
     optimiser = optim.Adam(model.parameters(), lr=lr)
 
-    f.write('\nTraining... ')
+    f.write('\nTraining... Set Up Time: {:.1f}'.format(time.time() - t0))
     f.flush()
-
-    running_loss = 0
-    t0 = time.time()
 
     for epoch in range(epochs):
         optimiser.zero_grad()
