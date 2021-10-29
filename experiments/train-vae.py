@@ -99,6 +99,7 @@ def main(args):
         if epoch % ae_print_freq == 0:
             print('\nAE Epoch {}\tLoss: {}\tTrain Time: {:.1f}'.format(epoch, ae_running_loss / ae_print_freq, time.time()-t0))
             f.write('\nAE Epoch {}\tLoss: {}\tTrain Time: {:.1f}'.format(epoch, ae_running_loss / ae_print_freq, time.time()-t0))
+            f.flush()
             ae_running_loss = 0
             t0 = time.time()
 

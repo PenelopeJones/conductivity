@@ -8,8 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-import pdb
-
 
 def maximum_r2(y, y_err, n_samples=10, file=None):
     r2s = []
@@ -148,22 +146,66 @@ def train_valid_split(data, n_split, seed=5, fraction_valid=0.2):
 
     return data_valid, data_train
 
+def data_loader_augmented(concs_train, lbs_train, concs_valid, lbs_valid, ptd, n_augments=10):
+    mus = []
+    ns_train = []
+    ns_train_na = []
+    vars = []
+
+    for i in range(concs_train.shape[0]):
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        x = np.load(ptf, allow_pickle=True)
+        n_batch = x.shape[0]//n_augments
+        x = x[0:n_augments*n_batch]
+        ns_train.extend([n_batch,]*n_augments)
+        ns_train_na.append(n_batch*n_augments)
+        mus.append(np.mean(x, axis=0))
+        vars.append(np.var(x, axis=0))
+
+        if i == 0:
+            X_train = x
+
+        else:
+            X_train = np.concatenate((X_train, x), axis=0)
+
+    ns_na = np.hstack(ns_train_na)
+    mus = np.vstack(mus)
+    vars = np.vstack(vars)
+
+    mu = np.sum(ns_na*mus.T, axis=1) / np.sum(ns_na)
+    std = np.sqrt(np.sum((ns_na*(vars.T + (mus.T - mu.reshape(-1, 1))**2)), axis=1) / np.sum(ns_na))
+
+    ns_valid = []
+
+    for i in range(concs_valid.shape[0]):
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        x = np.load(ptf, allow_pickle=True)
+        n_batch = x.shape[0]//n_augments
+        x = x[0:n_augments*n_batch]
+        ns_valid.extend([n_batch,]*n_augments)
+        if i == 0:
+            X_valid = x
+        else:
+            X_valid = np.concatenate((X_valid, x), axis=0)
+
+    X_train = torch.tensor(((X_train - mu) / std), dtype=torch.float32)
+    X_valid = torch.tensor(((X_valid - mu) / std), dtype=torch.float32)
+
+    print('Size of training data = {}'.format(sys.getsizeof(X_train)))
+    print('Size of validation data = {}'.format(sys.getsizeof(X_valid)))
+    return X_train, ns_train, X_valid, ns_valid, mu, std
+
 def data_loader(concs_train, lbs_train, concs_valid, lbs_valid, ptd):
     mus = []
     ns_train = []
     vars = []
-    idxs_train = [] # idxs[n] gives start row of the nth system in X i.e. x_n = X[idx[n]:idx[n+1], :]
-
-    idx = 0
 
     for i in range(concs_train.shape[0]):
-        idxs_train.append(idx)
         ptf = ptd + 'X_{}_{}_soap'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         mus.append(np.mean(x, axis=0))
         vars.append(np.var(x, axis=0))
         ns_train.append(x.shape[0])
-        idx += x.shape[0]
 
         if i == 0:
             X_train = x
@@ -178,16 +220,12 @@ def data_loader(concs_train, lbs_train, concs_valid, lbs_valid, ptd):
     mu = np.sum(ns*mus.T, axis=1) / np.sum(ns)
     std = np.sqrt(np.sum((ns*(vars.T + (mus.T - mu.reshape(-1, 1))**2)), axis=1) / np.sum(ns))
 
-    idxs_valid = [] # idxs[n] gives start row of the nth system in X i.e. x_n = X[idx[n]:idx[n+1], :]
     ns_valid = []
-    idx = 0
 
     for i in range(concs_valid.shape[0]):
-        idxs_valid.append(idx)
         ptf = ptd + 'X_{}_{}_soap'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_valid.append(x.shape[0])
-        idx += x.shape[0]
 
         if i == 0:
             X_valid = x
@@ -199,7 +237,7 @@ def data_loader(concs_train, lbs_train, concs_valid, lbs_valid, ptd):
     X_valid = torch.tensor(((X_valid - mu) / std), dtype=torch.float32)
 
     print('Size of training data = {}'.format(sys.getsizeof(X_train)))
-    print('Size of validation data = {}'.format(sys.getsizeof(X_train)))
+    print('Size of validation data = {}'.format(sys.getsizeof(X_valid)))
     return X_train, ns_train, X_valid, ns_valid, mu, std
 
 def x_scaler(concs, lbs, ptd):
