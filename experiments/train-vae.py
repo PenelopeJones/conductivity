@@ -120,6 +120,8 @@ def main(args):
     running_loss = 0
     t0 = time.time()
 
+    rmse_best = 1000000
+
     for epoch in range(epochs):
         optimiser.zero_grad()
         pred = model.predict(Z_train, ns_train)
