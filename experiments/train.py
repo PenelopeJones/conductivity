@@ -21,7 +21,6 @@ def main(args):
 
     n_splits = args.n_splits
     n_ensembles = args.n_ensembles
-
     hidden_dims = args.hidden_dims
     run_id = args.run_id
     n_split = args.n_split
@@ -29,12 +28,6 @@ def main(args):
     lr = args.lr
     epochs = args.epochs
     print_freq = args.print_freq
-    encoder_dims = args.encoder_dims
-    decoder_dims = args.decoder_dims
-    latent_dim = args.latent_dim
-    ae_epochs = args.ae_epochs
-    ae_print_freq = args.ae_print_freq
-    batch_size = args.batch_size
     log_name = '{}_log_{}_{}.txt'.format(experiment_name, n_split, run_id)
     args_name = '{}_args.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
@@ -74,46 +67,9 @@ def main(args):
     f.write('\nLoaded data for split {}... Load Time: {:.1f}'.format(n_split, time.time() - t0))
     f.flush()
 
-    # Auto encode
-    encoder = VanillaNN(in_dim=mu_x.shape[0], out_dim=latent_dim, hidden_dims=encoder_dims)
-    decoder = VanillaNN(in_dim=latent_dim, out_dim=mu_x.shape[0], hidden_dims=decoder_dims)
-
-    ae_criterion = nn.MSELoss()
-    ae_optimiser = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=lr)
-
-    t0 = time.time()
-    ae_running_loss = 0
-
-    # Pre-train using the full dataset
-    for epoch in range(ae_epochs):
-        ae_optimiser.zero_grad()
-
-        n_train = X_train.shape[0]
-        idx = np.random.permutation(n_train)[0:batch_size]
-
-        Z_tr = encoder(X_train[idx])
-        X_rec = decoder(Z_tr)
-        ae_loss = ae_criterion(X_rec, X_train[idx])
-
-        ae_running_loss += ae_loss
-
-        if epoch % ae_print_freq == 0:
-            print('\nAE Epoch {}\tLoss: {}\tTrain Time: {:.1f}'.format(epoch, ae_running_loss / ae_print_freq, time.time()-t0))
-            f.write('\nAE Epoch {}\tLoss: {}\tTrain Time: {:.1f}'.format(epoch, ae_running_loss / ae_print_freq, time.time()-t0))
-            ae_running_loss = 0
-            t0 = time.time()
-
-        ae_loss.backward()
-        ae_optimiser.step()
-
-    Z_train = encoder(X_train).detach()
-    Z_valid = encoder(X_valid).detach()
-    torch.save(encoder.state_dict(), pts + 'models/' + 'encoder{}{}_{}.pkl'.format(experiment_name, n_split, run_id))
-    torch.save(decoder.state_dict(), pts + 'models/' + 'decoder{}{}_{}.pkl'.format(experiment_name, n_split, run_id))
-
     t0 = time.time()
 
-    model = VanillaNN(in_dim=latent_dim, out_dim=1, hidden_dims=hidden_dims)
+    model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
     criterion = nn.MSELoss()
     optimiser = optim.Adam(model.parameters(), lr=lr)
 
@@ -122,7 +78,7 @@ def main(args):
 
     for epoch in range(epochs):
         optimiser.zero_grad()
-        pred = model.predict(Z_train, ns_train)
+        pred = model.predict(X_train, ns_train)
         loss = criterion(pred, y_train)
         running_loss += loss
 
@@ -130,8 +86,8 @@ def main(args):
             t1 = time.time()
 
             # Make prediction
-            pred_train = model.predict(Z_train, ns_train)
-            pred_valid = model.predict(Z_valid, ns_valid)
+            pred_train = model.predict(X_train, ns_train)
+            pred_valid = model.predict(X_valid, ns_valid)
             pred_train = sc_y.inverse_transform(pred_train.detach().numpy())
             pred_valid = sc_y.inverse_transform(pred_valid.detach().numpy())
 
@@ -172,14 +128,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ptd', type=str, default='../../data/',
                         help='Path to directory containing data.')
-    parser.add_argument('--experiment_name', type=str, default='NEW_VAE',
+    parser.add_argument('--experiment_name', type=str, default='NO_VAE',
                         help='Name of experiment.')
     parser.add_argument('--hidden_dims', nargs='+', type=int,
-                        default=[50, ],
+                        default=[100, 100,],
                         help='Dimensionality of network hidden layers.')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='Number of systems to use in training.')
-    parser.add_argument('--epochs', type=int, default=1000,
+    parser.add_argument('--epochs', type=int, default=10000,
                         help='Number of training epochs.')
     parser.add_argument('--print_freq', type=int, default=50,
                         help='Print frequency.')
@@ -191,20 +147,6 @@ if __name__ == "__main__":
                         help='Split number.')
     parser.add_argument('--n_splits', type=int, default=5,
                         help='Number of train/valid splits.')
-    parser.add_argument('--encoder_dims', nargs='+', type=int,
-                        default=[100, 100],
-                        help='Dimensionality of encoder hidden layers.')
-    parser.add_argument('--decoder_dims', nargs='+', type=int,
-                        default=[100, 100],
-                        help='Dimensionality of decoder hidden layers.')
-    parser.add_argument('--latent_dim', type=int, default=50,
-                        help='Size of latent variable.')
-    parser.add_argument('--batch_size', type=int, default=50000,
-                        help='Size of latent variable.')
-    parser.add_argument('--ae_print_freq', type=int, default=50,
-                        help='Print frequency for autoencoder training.')
-    parser.add_argument('--ae_epochs', type=int, default=500,
-                        help='Print frequency for autoencoder training.')
 
     args = parser.parse_args()
 
