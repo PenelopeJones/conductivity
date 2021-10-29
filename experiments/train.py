@@ -67,14 +67,16 @@ def main(args):
     f.write('\nLoaded data for split {}... Load Time: {:.1f}'.format(n_split, time.time() - t0))
     f.flush()
 
-    t0 = time.time()
-
     model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
     criterion = nn.MSELoss()
     optimiser = optim.Adam(model.parameters(), lr=lr)
 
-    f.write('\nTraining... Set Up Time: {:.1f}'.format(time.time() - t0))
+    f.write('\nTraining... ')
     f.flush()
+
+    rmse_best = 100000
+    t0 = time.time()
+    running_loss = 0
 
     for epoch in range(epochs):
         optimiser.zero_grad()
