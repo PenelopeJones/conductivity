@@ -146,6 +146,8 @@ def train_valid_split(data, n_split, seed=5, fraction_valid=0.2):
 
     return data_valid, data_train
 
+
+
 def data_loader_augmented(concs_train, lbs_train, concs_valid, lbs_valid, ptd, n_augments=10):
     mus = []
     ns_train = []
@@ -194,6 +196,66 @@ def data_loader_augmented(concs_train, lbs_train, concs_valid, lbs_valid, ptd, n
     print('Size of training data = {}'.format(sys.getsizeof(X_train)))
     print('Size of validation data = {}'.format(sys.getsizeof(X_valid)))
     return X_train, ns_train, X_valid, ns_valid, mu, std
+
+def data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptd):
+    mus = []
+    ns_train = []
+    vars = []
+
+    for i in range(concs_train.shape[0]):
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        x = np.load(ptf, allow_pickle=True)
+        mus.append(np.mean(x, axis=0))
+        vars.append(np.var(x, axis=0))
+        ns_train.append(x.shape[0])
+
+        if i == 0:
+            X_train = x
+
+        else:
+            X_train = np.concatenate((X_train, x), axis=0)
+
+    mus = np.vstack(mus)
+    ns = np.hstack(ns_train)
+    vars = np.vstack(vars)
+
+    mu = np.sum(ns*mus.T, axis=1) / np.sum(ns)
+    std = np.sqrt(np.sum((ns*(vars.T + (mus.T - mu.reshape(-1, 1))**2)), axis=1) / np.sum(ns))
+
+    ns_valid = []
+
+    for i in range(concs_valid.shape[0]):
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        x = np.load(ptf, allow_pickle=True)
+        ns_valid.append(x.shape[0])
+
+        if i == 0:
+            X_valid = x
+
+        else:
+            X_valid = np.concatenate((X_valid, x), axis=0)
+
+    ns_test = []
+
+    for i in range(concs_test.shape[0]):
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        x = np.load(ptf, allow_pickle=True)
+        ns_test.append(x.shape[0])
+
+        if i == 0:
+            X_test = x
+
+        else:
+            X_test = np.concatenate((X_test, x), axis=0)
+
+    X_train = torch.tensor(((X_train - mu) / std), dtype=torch.float32)
+    X_valid = torch.tensor(((X_valid - mu) / std), dtype=torch.float32)
+    X_test = torch.tensor(((X_test - mu) / std), dtype=torch.float32)
+
+    print('Size of training data = {}'.format(sys.getsizeof(X_train)))
+    print('Size of validation data = {}'.format(sys.getsizeof(X_valid)))
+    print('Size of test data = {}'.format(sys.getsizeof(X_test)))
+    return X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu, std
 
 def data_loader(concs_train, lbs_train, concs_valid, lbs_valid, ptd):
     mus = []
