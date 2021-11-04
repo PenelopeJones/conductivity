@@ -68,7 +68,7 @@ def main(args):
         for run_id in range(n_ensembles):
             # Load saved models
             encoder = VanillaNN(in_dim=mu_x.shape[0], out_dim=latent_dim, hidden_dims=encoder_dims)
-            model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
+            model = VanillaNN(in_dim=latent_dim, out_dim=1, hidden_dims=hidden_dims)
             encoder.load_state_dict(torch.load(pts + 'models/' + 'encoder{}{}_{}.pkl'.format(experiment_name,
                                                                                              n_split, run_id)))
             model.load_state_dict(torch.load(pts + 'models/' + 'model{}{}_{}.pkl'.format(experiment_name, n_split,
