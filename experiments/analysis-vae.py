@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import pdb
 import time
 
 import numpy as np
@@ -76,9 +77,11 @@ def main(args):
             local_preds_valid = np.split(local_preds_valid, ns_valid)
             local_preds_test = sc_y.inverse_transform(model.forward(Z_test).detach().numpy())
             local_preds_test = np.split(local_preds_test, ns_test)
+            pdb.set_trace()
 
             for i in range(concs_train.shape[0]):
                 pts_local = pts + 'predictions/local_pred_{}_{}_{}_{}'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
+                pdb.set_trace()
                 np.save(pts_local, local_preds_train[i].reshape(-1))
 
             for i in range(concs_valid.shape[0]):
