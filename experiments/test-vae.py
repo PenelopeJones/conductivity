@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
 from utils.util import train_test_split, train_valid_split, data_loader, VanillaNN, aggregate_metrics
@@ -68,16 +68,12 @@ def main(args):
         for run_id in range(n_ensembles):
             # Load saved models
             encoder = VanillaNN(in_dim=mu_x.shape[0], out_dim=latent_dim, hidden_dims=encoder_dims)
-            decoder = VanillaNN(in_dim=latent_dim, out_dim=mu_x.shape[0], hidden_dims=decoder_dims)
             model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
             encoder.load_state_dict(torch.load(pts + 'models/' + 'encoder{}{}_{}.pkl'.format(experiment_name,
-                                                                                             n_split, run_id)))
-            decoder.load_state_dict(torch.load(pts + 'models/' + 'decoder{}{}_{}.pkl'.format(experiment_name,
                                                                                              n_split, run_id)))
             model.load_state_dict(torch.load(pts + 'models/' + 'model{}{}_{}.pkl'.format(experiment_name, n_split,
                                                                                          run_id)))
             encoder.eval()
-            decoder.eval()
             model.eval()
 
             Z_train = encoder(X_train).detach()
@@ -112,8 +108,8 @@ def main(args):
         preds_train = np.vstack(preds_train)
         preds_train_mn = np.mean(preds_train, axis=0)
         preds_train_std = np.std(preds_train, axis=0)
-        f.write('Split {}\t Aggregate RMSE (train): {:.4f}'.format(n_split, np.sqrt(mean_squared_error(true_train,
-                                                                                              preds_train_mn))))
+        f.write('\nSplit {}\t Aggregate RMSE (train): {:.4f}\t R2 (train): {:.4f}'.format(n_split, np.sqrt(mean_squared_error(true_train, preds_train_mn)),
+                                                                                          r2_score(true_train, preds_train_mn)))
         f.flush()
         np.save(pts + 'predictions/' + '{}{}_pred_train_mn.npy'.format(experiment_name, n_split),
                 preds_train_mn)
@@ -127,7 +123,8 @@ def main(args):
     preds_test = np.vstack(preds_test)
     preds_test_mn = np.mean(preds_test, axis=0)
     preds_test_std = np.std(preds_test, axis=0)
-    f.write('Aggregate RMSE (test): {:.4f}'.format(np.sqrt(mean_squared_error(true_test, preds_test_mn))))
+    f.write('\nAggregate RMSE (test): {:.4f}\t R2 (test): {:.4f}'.format(np.sqrt(mean_squared_error(true_test, preds_test_mn)),
+                                                     r2_score(true_test, preds_test_mn)))
     f.flush()
     np.save(pts + 'predictions/' + '{}pred_test_mn.npy'.format(experiment_name),
             preds_test_mn)
