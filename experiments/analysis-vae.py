@@ -72,10 +72,15 @@ def main(args):
             Z_test = encoder(X_test).detach()
             # Make predictions
             local_preds_train = sc_y.inverse_transform(model.forward(Z_train).detach().numpy())
+            pdb.set_trace()
             local_preds_train = np.split(local_preds_train, ns_train)
+            pdb.set_trace()
             local_preds_valid = sc_y.inverse_transform(model.forward(Z_valid).detach().numpy())
+            pdb.set_trace()
             local_preds_valid = np.split(local_preds_valid, ns_valid)
+            pdb.set_trace()
             local_preds_test = sc_y.inverse_transform(model.forward(Z_test).detach().numpy())
+            pdb.set_trace()
             local_preds_test = np.split(local_preds_test, ns_test)
             pdb.set_trace()
 
