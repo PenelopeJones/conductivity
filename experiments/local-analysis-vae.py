@@ -29,9 +29,9 @@ def main(args):
         preds = []
         for n_split in range(n_splits):
             for run_id in range(n_ensembles):
-            pts_local = pts + 'predictions/local_pred_{}_{}_{}_{}'.format(concs[i], lbs[i], n_split, run_id).replace('.', '-') + '.npy'
-            pred = np.load(pts_local)
-            preds.append(pred)
+                pts_local = pts + 'predictions/local_pred_{}_{}_{}_{}'.format(concs[i], lbs[i], n_split, run_id).replace('.', '-') + '.npy'
+                pred = np.load(pts_local)
+                preds.append(pred)
         preds = np.vstack(preds)
         pdb.set_trace()
         preds_mn = np.mean(preds, axis=0)
