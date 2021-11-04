@@ -14,14 +14,21 @@ from utils.util import train_test_split, train_valid_split, data_loader, Vanilla
 
 def main(args):
 
+    t0 = time.time()
+
     ptd = args.ptd
     ptx = ptd + 'processed/'
 
     n_splits = args.n_splits
     n_ensembles = args.n_ensembles
+
     hidden_dims = args.hidden_dims
     experiment_name = args.experiment_name
+    encoder_dims = args.encoder_dims
+    decoder_dims = args.decoder_dims
+    latent_dim = args.latent_dim
     log_name = '{}_log_test.txt'.format(experiment_name)
+    args_name = '{}_args.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
 
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -59,15 +66,25 @@ def main(args):
         preds_train = []
 
         for run_id in range(n_ensembles):
-
             # Load saved models
+            encoder = VanillaNN(in_dim=mu_x.shape[0], out_dim=latent_dim, hidden_dims=encoder_dims)
+            decoder = VanillaNN(in_dim=latent_dim, out_dim=mu_x.shape[0], hidden_dims=decoder_dims)
             model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
+            encoder.load_state_dict(torch.load(pts + 'models/' + 'encoder{}{}_{}.pkl'.format(experiment_name,
+                                                                                             n_split, run_id)))
+            decoder.load_state_dict(torch.load(pts + 'models/' + 'decoder{}{}_{}.pkl'.format(experiment_name,
+                                                                                             n_split, run_id)))
             model.load_state_dict(torch.load(pts + 'models/' + 'model{}{}_{}.pkl'.format(experiment_name, n_split,
                                                                                          run_id)))
+            encoder.eval()
+            decoder.eval()
             model.eval()
 
-            pred_train = model.predict(X_train, ns_train)
-            pred_test = model.predict(X_test, ns_test)
+            Z_train = encoder(X_train).detach()
+            Z_test = encoder(X_test).detach()
+            # Make prediction
+            pred_train = model.predict(Z_train, ns_train)
+            pred_test = model.predict(Z_test, ns_test)
             pred_train = sc_y.inverse_transform(pred_train.detach().numpy())
             pred_test = sc_y.inverse_transform(pred_test.detach().numpy())
             preds_train.append(pred_train.reshape(-1))
@@ -127,14 +144,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ptd', type=str, default='../../data/',
                         help='Path to directory containing data.')
-    parser.add_argument('--experiment_name', type=str, default='NO_VAE',
+    parser.add_argument('--experiment_name', type=str, default='NEW_VAE',
                         help='Name of experiment.')
     parser.add_argument('--hidden_dims', nargs='+', type=int,
-                        default=[100, 100,],
+                        default=[50, ],
                         help='Dimensionality of network hidden layers.')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='Number of systems to use in training.')
-    parser.add_argument('--epochs', type=int, default=10000,
+    parser.add_argument('--epochs', type=int, default=1000,
                         help='Number of training epochs.')
     parser.add_argument('--print_freq', type=int, default=50,
                         help='Print frequency.')
@@ -142,6 +159,20 @@ if __name__ == "__main__":
                         help='Number of ensembles to train per split.')
     parser.add_argument('--n_splits', type=int, default=5,
                         help='Number of train/valid splits.')
+    parser.add_argument('--encoder_dims', nargs='+', type=int,
+                        default=[100, 100],
+                        help='Dimensionality of encoder hidden layers.')
+    parser.add_argument('--decoder_dims', nargs='+', type=int,
+                        default=[100, 100],
+                        help='Dimensionality of decoder hidden layers.')
+    parser.add_argument('--latent_dim', type=int, default=50,
+                        help='Size of latent variable.')
+    parser.add_argument('--batch_size', type=int, default=50000,
+                        help='Size of latent variable.')
+    parser.add_argument('--ae_print_freq', type=int, default=50,
+                        help='Print frequency for autoencoder training.')
+    parser.add_argument('--ae_epochs', type=int, default=500,
+                        help='Print frequency for autoencoder training.')
 
     args = parser.parse_args()
 
