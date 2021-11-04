@@ -46,7 +46,7 @@ def main(args):
 
         data_valid, data_train = train_valid_split(data_train_valid, n_split=n_split)
         (true_train, true_err_train, concs_train, lbs_train) = data_train
-        (true_valid, true_err_valid, concs_valid, lbs_valid) = data_train
+        (true_valid, true_err_valid, concs_valid, lbs_valid) = data_valid
 
         # Load training and validation data
         X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu_x, std_x = data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptx)
