@@ -17,6 +17,7 @@ def main(args):
     n_ensembles = args.n_ensembles
 
     experiment_name = args.experiment_name
+    ptd = args.ptd
     pts = '../results/{}/'.format(experiment_name)
     concs = np.load(ptd + 'concentrations.npy')
     concs = concs.repeat(9).reshape(-1)
