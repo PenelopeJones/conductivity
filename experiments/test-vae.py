@@ -88,11 +88,13 @@ def main(args):
 
             rmse_train = np.sqrt(mean_squared_error(true_train, pred_train))
             rmse_test = np.sqrt(mean_squared_error(true_test, pred_test))
+            r2_train = r2_score(true_train, pred_train)
+            r2_test = r2_score(true_test, pred_test)
 
             print('\n Split {}, Run ID {}\tRMSE (Train): {:.4f}\tRMSE (Test): {:.4f}'.format(n_split, run_id,
                                                                                              rmse_train, rmse_test))
-            f.write('\n Split {}, Run ID {}\tRMSE (Train): {:.4f}\tRMSE (Test): {:.4f}'.format(n_split, run_id,
-                                                                                             rmse_train, rmse_test))
+            f.write( '\n Split {}, Run ID {}\tRMSE (Train): {:.4f}\tRMSE (Test): {:.4f}\tR2 (Train): {:.4f}\tR2 (Test): {:.4f}'.format(n_split, run_id,
+                    rmse_train, rmse_test, r2_train, r2_test))
             f.flush()
 
             np.save(pts + 'predictions/' + '{}{}_{}_pred_test.npy'.format(experiment_name, n_split, run_id),
