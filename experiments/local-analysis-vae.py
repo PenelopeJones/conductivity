@@ -30,9 +30,9 @@ def main(args):
 
     figsize = (10, 10)
     cmap = cm.get_cmap('YlOrRd_r')
-    norm = Normalize(vmin=2.0, vmax=11.0)
+    norm = Normalize(vmin=2.5, vmax=13.0)
 
-    bins = np.hstack([np.linspace(-12, -5, 8), np.linspace(-4, 4, 41), np.linspace(5, 12, 8)])
+    bins = np.linspace(-5, 5, 100)
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     sys_hists = []
     for i in range(concs.shape[0]):
@@ -52,7 +52,7 @@ def main(args):
 
     for i in range(concs.shape[0]):
         ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.6, label='Conc {} lB {}'.format(concs[i], lbs[i]))
-        ax.set_xlim(-12, 12)
+        ax.set_xlim(-5, 5)
         ax.set_ylim(-0.5, 0.5)
         ax.set_yscale('symlog')
 
