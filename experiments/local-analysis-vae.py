@@ -26,6 +26,7 @@ def main(args):
 
     figsize = (10, 10)
 
+    bins = np.hstack([-12, -10, -8, -6, -5, np.linspace(-4, 4, 80), 5, 6, 8, 10, 12])
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     for i in range(concs.shape[0]):
         preds = []
@@ -37,7 +38,8 @@ def main(args):
         preds = np.vstack(preds)
         preds_mn = np.mean(preds, axis=0)
         preds_std = np.std(preds, axis=0)
-        ax.hist(preds_mn, bins=100, alpha=0.3, density=True, log=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.hist(preds_mn, bins=bins, alpha=0.3, density=True, log=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.set_xlim(-12, 12)
         if i % 9 == 8:
             ax.legend(fontsize=14, frameon=False)
             fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
