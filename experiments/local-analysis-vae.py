@@ -32,8 +32,17 @@ def main(args):
     cmap = cm.get_cmap('YlOrRd_r')
     norm = Normalize(vmin=2.5, vmax=13.0)
 
-    bins = np.linspace(-5, 5, 100)
+    xmin = -3
+    xmax = 3
+    ymin = -0.5
+    ymax = 0.5
+    fontsize = 20
+    bins = np.linspace(xmin, xmax, 100)
     fig, ax = plt.subplots(1, 1, figsize=figsize)
+    for axis in ['bottom', 'left']:
+        ax.spines[axis].set_linewidth(2.0)
+    for axis in ['top', 'right']:
+        ax.spines[axis].set_visible(False)
     sys_hists = []
     for i in range(concs.shape[0]):
         preds = []
@@ -52,15 +61,25 @@ def main(args):
 
     for i in range(concs.shape[0]):
         ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.6, label='Conc {} lB {}'.format(concs[i], lbs[i]))
-        ax.set_xlim(-5, 5)
-        ax.set_ylim(-0.5, 0.5)
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
         ax.set_yscale('symlog')
 
         if i % 9 == 8:
             ax.legend(fontsize=14, frameon=False)
+            ax.set_xticks([xmin, xmax])
+            ax.set_xticklabels([str(xmin), str(xmax)], fontsize=fontsize)
+            ax.set_yticks([ymin, ymax])
+            ax.set_yticklabels([str(ymin), str(ymax)], fontsize=fontsize)
+            ax.set_ylabel('Residual probability density', fontsize=fontsize)
+            ax.set_xlabel('Local conductivity', fontsize=fontsize)
             fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
             plt.close(fig)
             fig, ax = plt.subplots(1, 1, figsize=figsize)
+            for axis in ['bottom', 'left']:
+                ax.spines[axis].set_linewidth(2.0)
+            for axis in ['top', 'right']:
+                ax.spines[axis].set_visible(False)
     plt.close(fig)
 
 
