@@ -37,7 +37,7 @@ def main(args):
         preds = np.vstack(preds)
         preds_mn = np.mean(preds, axis=0)
         preds_std = np.std(preds, axis=0)
-        ax.hist(preds_mn, bins=100, alpha=0.5, density=True, log=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.hist(preds_mn, bins=100, alpha=0.3, density=True, log=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         if i % 9 == 8:
             ax.legend(fontsize=14, frameon=False)
             fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
