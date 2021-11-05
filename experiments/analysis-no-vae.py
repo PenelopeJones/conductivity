@@ -59,12 +59,28 @@ def main(args):
                                                                                          run_id)))
             model.eval()
 
+            # Make predictions
+            idx_train = []
+            idx = 0
+            for i in range(len(ns_train)):
+                idx += ns_train[i]
+                idx_train.append(idx)
+            idx_valid = []
+            idx = 0
+            for i in range(len(ns_valid)):
+                idx += ns_valid[i]
+                idx_valid.append(idx)
+            idx_test = []
+            idx = 0
+            for i in range(len(ns_test)):
+                idx += ns_test[i]
+                idx_test.append(idx)
             local_preds_train = sc_y.inverse_transform(model.forward(X_train).detach().numpy())
-            local_preds_train = np.split(local_preds_train, ns_train)
+            local_preds_train = np.split(local_preds_train, idx_train)
             local_preds_valid = sc_y.inverse_transform(model.forward(X_valid).detach().numpy())
-            local_preds_valid = np.split(local_preds_valid, ns_valid)
+            local_preds_valid = np.split(local_preds_valid, idx_valid)
             local_preds_test = sc_y.inverse_transform(model.forward(X_test).detach().numpy())
-            local_preds_test = np.split(local_preds_test, ns_test)
+            local_preds_test = np.split(local_preds_test, idx_test)
 
             for i in range(concs_train.shape[0]):
                 pts_local = pts + 'predictions/local_pred_{}_{}_{}_{}'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
