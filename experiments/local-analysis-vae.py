@@ -45,7 +45,7 @@ def main(args):
     bincentres = [(bins[i] + bins[i + 1]) / 2. for i in range(len(bins) - 1)]
 
     for i in range(concs.shape[0]):
-        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', alpha=0.3, density=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', alpha=0.3, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(-12, 12)
         ax.set_ylim(0.00001, 10)
         if i % 9 == 8:
