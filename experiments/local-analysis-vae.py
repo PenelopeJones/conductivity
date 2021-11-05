@@ -24,8 +24,9 @@ def main(args):
     lbs = np.load(ptd + 'bjerrum_lengths.npy')
     lbs = np.tile(lbs, 12).reshape(-1)
 
-    figsize = (7, 7)
+    figsize = (10, 10)
 
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
     for i in range(concs.shape[0]):
         preds = []
         for n_split in range(n_splits):
@@ -38,10 +39,15 @@ def main(args):
         preds_mn = np.mean(preds, axis=0)
         preds_std = np.std(preds, axis=0)
         pdb.set_trace()
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax.hist(preds_mn, bins=50, density=True)
-        fig.savefig(pts + 'figures/histogram_{}_{}'.format(concs[i], lbs[i]).replace('.', '-') + '.png', dpi=400)
-        plt.close(fig)
+        ax.hist(preds_mn, bins=500, alpha=0.5, density=True, label='Conc {}\tlB {}'.format(concs[i], lbs[i]))
+        if i % 9 == 8:
+            ax.legend(fontsize=14, frameon=False)
+            fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
+            plt.close(fig)
+            pdb.set_trace()
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+    plt.close(fig)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
