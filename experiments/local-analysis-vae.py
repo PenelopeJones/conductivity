@@ -47,7 +47,9 @@ def main(args):
     for i in range(concs.shape[0]):
         ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', alpha=0.3, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(-12, 12)
-        ax.set_ylim(-1, 1)
+        ax.set_ylim(-0.5, 0.5)
+        ax.set_yscale('symlog')
+
         if i % 9 == 8:
             ax.legend(fontsize=14, frameon=False)
             fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
