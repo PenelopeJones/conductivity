@@ -32,10 +32,10 @@ def main(args):
     cmap = cm.get_cmap('YlOrRd_r')
     norm = Normalize(vmin=2.5, vmax=13.0)
 
-    xmin = -3
-    xmax = 3
-    ymin = -0.5
-    ymax = 0.5
+    xmin = -2.5
+    xmax = 2.5
+    ymin = -0.4
+    ymax = 0.8
     fontsize = 20
     bins = np.linspace(xmin, xmax, 100)
     fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -60,7 +60,7 @@ def main(args):
     bincentres = [(bins[i] + bins[i + 1]) / 2. for i in range(len(bins) - 1)]
 
     for i in range(concs.shape[0]):
-        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.6, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.7, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
         ax.set_yscale('symlog')
@@ -81,6 +81,18 @@ def main(args):
             for axis in ['top', 'right']:
                 ax.spines[axis].set_visible(False)
     plt.close(fig)
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    for axis in ['bottom', 'left']:
+        ax.spines[axis].set_linewidth(2.0)
+    for axis in ['top', 'right']:
+        ax.spines[axis].set_visible(False)
+    ax.step(bincentres, sys_hist_mn, where='mid', alpha=0.7, label='Mean')
+    ax.set_yscale('symlog')
+    ax.set_ylabel('Residual probability density', fontsize=fontsize)
+    ax.set_xlabel('Local conductivity', fontsize=fontsize)
+    fig.savefig(pts + 'figures/histogram_mean.png', dpi=400)
+    plt.close(fig)
+
 
 
 if __name__ == "__main__":
