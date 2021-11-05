@@ -95,7 +95,6 @@ def main(args):
 
             for i in range(concs_train.shape[0]):
                 pts_local = pts + 'predictions/local_pred_{}_{}_{}_{}'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
-                pdb.set_trace()
                 np.save(pts_local, local_preds_train[i].reshape(-1))
 
             for i in range(concs_valid.shape[0]):
