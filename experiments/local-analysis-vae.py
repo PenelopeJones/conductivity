@@ -6,6 +6,10 @@ import numpy as np
 import torch
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.colors import Normalize
+
+
 
 from utils.util import train_test_split, train_valid_split, data_loader_full, VanillaNN, aggregate_metrics
 
@@ -25,6 +29,8 @@ def main(args):
     lbs = np.tile(lbs, 12).reshape(-1)
 
     figsize = (10, 10)
+    cmap = cm.get_cmap('YlOrRd_r')
+    norm = Normalize(vmin=2.0, vmax=11.0)
 
     bins = np.hstack([np.linspace(-12, -5, 8), np.linspace(-4, 4, 41), np.linspace(5, 12, 8)])
     fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -45,7 +51,7 @@ def main(args):
     bincentres = [(bins[i] + bins[i + 1]) / 2. for i in range(len(bins) - 1)]
 
     for i in range(concs.shape[0]):
-        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', alpha=0.3, label='Conc {} lB {}'.format(concs[i], lbs[i]))
+        ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.6, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(-12, 12)
         ax.set_ylim(-0.5, 0.5)
         ax.set_yscale('symlog')
