@@ -40,11 +40,11 @@ def main(args):
         preds_std = np.std(preds, axis=0)
         ax.hist(preds_mn, bins=bins, alpha=0.3, density=True, log=True, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(-12, 12)
+        ax.set_ylim(10^-5, 10^1)
         if i % 9 == 8:
             ax.legend(fontsize=14, frameon=False)
             fig.savefig(pts + 'figures/histogram_{}'.format(i//9).replace('.', '-') + '.png', dpi=400)
             plt.close(fig)
-            pdb.set_trace()
             fig, ax = plt.subplots(1, 1, figsize=figsize)
     plt.close(fig)
 
