@@ -51,7 +51,7 @@ def main(args):
 
     x = []
 
-    n_snaps = int(nt / n_anions) + 1 # number of snapshots needed to get dataset size > nt
+    n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
 
     skip_snaps = n_snapshots // n_snaps
     print(n_snaps)
@@ -65,7 +65,7 @@ def main(args):
     i = 0
 
 
-    for snapshot_id in range(0, n_snapshots, skip_snaps):
+    for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
         t0 = time.time()
 
         # Select ion positions at a given snapshot
