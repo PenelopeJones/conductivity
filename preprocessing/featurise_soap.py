@@ -85,7 +85,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ptd', type=str, default='../data/md-trajectories/',
+    parser.add_argument('--ptd', type=str, default='../../data/md-trajectories/',
                         help='Path to directory containing data.')
     parser.add_argument('--pts', type=str, default='../../data/processed/',
                         help='Path to directory where data is saved.')
