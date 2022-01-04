@@ -1,9 +1,23 @@
+import os
+import sys
+
 import numpy as np
 import MDAnalysis as mda
+
+import pdb
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
     u = mda.Universe(data_file, dcd_file)
     return u
+
+def check_files_exist(dcd_file, data_file):
+    if os.path.isfile(dcd_file) and os.path.isfile(data_file):
+        print('Located dcd and data files.')
+    else:
+        print('Did not locate dcd and data files.')
+        sys.exit()
+    return
+
 
 def define_atom_types(u):
     # sort atoms into type of molecule
@@ -27,7 +41,7 @@ def create_position_arrays(u, anions, cations, solvent):
         time += 1
     return anion_positions, cation_positions, solvent_positions
 
-def mda_to_numpy(conc, lb, ptd='../../../../../rds/hpc-work/conductivity/data/md-trajectories/'):
+def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
     data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
     u = create_mda(dcd_file, data_file)
