@@ -29,8 +29,8 @@ def create_position_arrays(u, anions, cations, solvent):
     return anion_positions, cation_positions, solvent_positions
 
 def mda_to_numpy(conc, lb, ptd='../../../../rds/hpc-work/conductivity/data/md-trajectories/'):
-    dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc,lb)
-    data_file = '{}initial_config_conc{}.gsd'.format(conc)
+    dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
+    data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
     u = create_mda(dcd_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
     cations, anions, solvent = define_atom_types(u)
