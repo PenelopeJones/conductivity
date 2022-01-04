@@ -1,5 +1,13 @@
+import os
+import argparse
+import time
+import sys
+
 import numpy as np
+from ase import Atoms
 import MDAnalysis as mda
+
+import pdb
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
     u = mda.Universe(data_file, dcd_file)
@@ -30,6 +38,9 @@ def create_position_arrays(u, anions, cations, solvent):
 def mda_to_numpy(conc, lb, ptd='../../../../../rds/hpc-work/conductivity/data/md-trajectories/'):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
     data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
+    print(type(data_file))
+    print(data_file)
+    pdb.set_trace()
     u = create_mda(dcd_file, data_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
     cations, anions, solvent = define_atom_types(u)
@@ -37,3 +48,37 @@ def mda_to_numpy(conc, lb, ptd='../../../../../rds/hpc-work/conductivity/data/md
                  create_position_arrays(u, anions, cations, solvent))
 
     return anion_positions, cation_positions, solvent_positions, box_length
+
+
+def main(args):
+
+    conc = args.conc
+    lb = args.lb
+    if conc == 0.001:
+        ptd = args.ptd + '0001/'
+    else:
+        ptd = args.ptd + '{}/'.format(conc)
+    pts = args.pts
+    nt = 25000
+
+    ptf = pts + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
+
+    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
+
+    
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ptd', type=str, default='../../../../../rds/hpc-work/conductivity/data/md-trajectories/',
+                        help='Path to directory containing data.')
+    parser.add_argument('--pts', type=str, default='../../data/processed/',
+                        help='Path to directory where data is saved.')
+    parser.add_argument('--conc', type=float, default=0.045,
+                        help='Concentration.')
+    parser.add_argument('--lb', type=float, default=10.0,
+                        help='Bjerrum length.')
+    parser.add_argument('--print_freq', type=int, default=2,
+                        help='Print every N snapshots.')
+    args = parser.parse_args()
+
+    main(args)
