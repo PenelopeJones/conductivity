@@ -1,7 +1,7 @@
 import numpy as np
 import MDAnalysis as mda
 
-def create_mda(dcd_file, ptd='../../../../rds/hpc-work/conductivity/data/md-trajectories/'): # loads trajectory with unwrapped coordinates
+def create_mda(dcd_file, ): # loads trajectory with unwrapped coordinates
     data_file = ptd + "initial_config.gsd"
     u = mda.Universe(data_file,dcd_file)
     return u
@@ -30,6 +30,7 @@ def create_position_arrays(u, anions, cations, solvent):
 
 def mda_to_numpy(conc, lb, ptd='../../../../rds/hpc-work/conductivity/data/md-trajectories/'):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc,lb)
+    data_file = '{}initial_config_conc{}.gsd'.format(conc)
     u = create_mda(dcd_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
     cations, anions, solvent = define_atom_types(u)
