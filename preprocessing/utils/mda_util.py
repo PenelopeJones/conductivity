@@ -4,7 +4,6 @@ import sys
 import numpy as np
 import MDAnalysis as mda
 
-import pdb
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
     u = mda.Universe(data_file, dcd_file)

@@ -34,12 +34,11 @@ def main(args):
 
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
-    pdb.set_trace()
-
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
     n_solvents = solvent_positions.shape[1]
+    print(n_cations)
 
     cat_sym = 'Na'
     an_sym = 'Cl'
@@ -55,6 +54,7 @@ def main(args):
     n_snaps = int(nt / n_anions) + 1 # number of snapshots needed to get dataset size > nt
 
     skip_snaps = n_snapshots // n_snaps
+    print(n_snaps)
     print(skip_snaps)
 
     if not os.path.exists(args.pts):
