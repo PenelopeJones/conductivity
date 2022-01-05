@@ -113,7 +113,7 @@ def main(args):
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
-    n_snaps = int(nt / n_anions) + 1 # number of snapshots needed to get dataset size > nt
+    n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
     skip_snaps = n_snapshots // n_snaps
     print(skip_snaps)
 
@@ -174,7 +174,7 @@ def main(args):
     ax.set_xlabel('Distance', fontsize=fontsize)
     ax.set_ylabel('Correlation function', fontsize=fontsize)
     ax.set_xlim(min_r_value, max_r_value)
-    
+
     figsize = (7,7)
         import matplotlib.pyplot as plt
         import matplotlib as mpl
@@ -199,7 +199,7 @@ if __name__ == "__main__":
                         help='Concentration.')
     parser.add_argument('--lb', type=float, default=10.0,
                         help='Bjerrum length.')
-    parser.add_argument('--experiment_name', type=str, default='NEW_VAE_ENSEMBLE',
+    parser.add_argument('--experiment_name', type=str, default='220104_NO',
                         help='Name of experiment.')
     args = parser.parse_args()
 

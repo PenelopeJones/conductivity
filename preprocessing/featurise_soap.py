@@ -48,11 +48,9 @@ def main(args):
                           rcut=rcut, nmax=nmax, lmax=lmax,
                           sparse=sparse)
 
-
     x = []
 
     n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
-
     skip_snaps = n_snapshots // n_snaps
     print(n_snaps)
     print(skip_snaps)
