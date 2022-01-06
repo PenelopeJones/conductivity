@@ -120,8 +120,8 @@ def main(args):
     print(n_snaps)
     print(skip_snaps)
 
-    if not os.path.exists(args.pts):
-        os.makedirs(args.pts)
+    if not os.path.exists(ptp):
+        os.makedirs(ptp)
 
     if not os.path.exists(ptp + 'snapshots'):
         os.makedirs(ptp + 'snapshots')
@@ -196,7 +196,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ptd', type=str, default='../data/md-trajectories/',
+    parser.add_argument('--ptd', type=str, default='../../data/md-trajectories/',
                         help='Path to directory containing data.')
     parser.add_argument('--conc', type=float, default=0.045,
                         help='Concentration.')
