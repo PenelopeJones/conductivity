@@ -127,8 +127,8 @@ def main(args):
     if not os.path.exists(ptp + 'snapshots'):
         os.makedirs(ptp + 'snapshots')
 
-    if not os.path.exists(ptp + 'figures'):
-        os.makedirs(ptp + 'figures')
+    if not os.path.exists(ptp + 'correlation_functions'):
+        os.makedirs(ptp + 'correlation_functions')
 
     print('Concentration {}\t lB {}'.format(conc, lb))
 
@@ -144,7 +144,7 @@ def main(args):
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
         idx += anions.shape[0]
-        np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
+        #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
         np.save(ptp + 'snapshots/conductivity_mn_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_mn)
         np.save(ptp + 'snapshots/conductivity_std_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_std)
@@ -166,8 +166,8 @@ def main(args):
     np.seterr(divide='ignore')
     cf = np.divide(cfs, nums)
     print(cf)
-    np.save(ptp + 'bin_positions_{}_{}.npy'.format(conc, lb), x)
-    np.save(ptp + 'correlation_function_{}_{}.npy'.format(conc, lb), cf)
+    np.save(ptp + 'correlation_functions/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
+    np.save(ptp + 'correlation_functions/correlation_function_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', cf)
     """
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     for axis in ['bottom', 'left']:
