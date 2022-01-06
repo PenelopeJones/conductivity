@@ -10,31 +10,23 @@ import pdb
 import numpy as np
 
 def correlation_function(anions, conductivities, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
-    pdb.set_trace()
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y = np.zeros(x.shape[0])
     n = np.zeros(x.shape[0])
-    pdb.set_trace()
     product = np.matmul(conductivities.reshape(-1, 1), conductivities.reshape(1, -1))
-    pdb.set_trace()
     distances = np.zeros(product.shape)
-    pdb.set_trace()
     for i in range(anions.shape[0]):
         anion = anions[i, :].reshape(1, 3)
         distances[i, :] = np.linalg.norm(np.minimum(((anions - anion) % box_length), ((anion - anions) % box_length)),
                                          axis=1)
-        if i == 0:
-            pdb.set_trace()
     product = product.reshape(-1)
     distances = distances.reshape(-1)
-    pdb.set_trace()
+
     for j in range(x.shape[0]):
         selected = product[np.where(np.abs(distances - x[j]) < 0.5*bin_size)].reshape(-1)
         y[j] += selected.sum()
         n[j] += selected.shape[0]
-        if j == 0:
-            pdb.set_trace()
-    pdb.set_trace()
+
     return x, y, n
 
 """
@@ -148,14 +140,12 @@ def main(args):
         print(snapshot_id)
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
-        cations = cation_positions[snapshot_id, :, :]
-        pdb.set_trace()
+        #cations = cation_positions[snapshot_id, :, :]
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
-        pdb.set_trace()
         idx += anions.shape[0]
         np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
-        np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
+        #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
         np.save(ptp + 'snapshots/conductivity_mn_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_mn)
         np.save(ptp + 'snapshots/conductivity_std_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_std)
 
@@ -169,6 +159,7 @@ def main(args):
                                               box_length=box_length)
         cfs.append(cf)
         nums.append(num)
+    pdb.set_trace()
     cfs = np.vstack(cfs)
     nums = np.vstack(nums)
     cfs = np.sum(cfs, axis=0)
