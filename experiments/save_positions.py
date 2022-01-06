@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('../')
 import argparse
 
 from preprocessing.utils.mda_util import mda_to_numpy
@@ -115,6 +117,7 @@ def main(args):
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
     skip_snaps = n_snapshots // n_snaps
+    print(n_snaps)
     print(skip_snaps)
 
     if not os.path.exists(args.pts):
