@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('../')
+sys.path.append('../../')
 import argparse
 
 from preprocessing.utils.mda_util import mda_to_numpy
