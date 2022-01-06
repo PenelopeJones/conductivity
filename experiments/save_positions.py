@@ -95,9 +95,9 @@ def main(args):
     nt = 25000
     n_splits = 5
     n_ensembles = 5
-    min_r_value = 0
-    max_r_value = 4.0
-    bin_size = 0.2
+    min_r_value = args.min_r_value
+    max_r_value = args.max_r_value
+    bin_size = args.bin_size
 
     # Load ion positions
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
@@ -159,7 +159,6 @@ def main(args):
                                               box_length=box_length)
         cfs.append(cf)
         nums.append(num)
-    pdb.set_trace()
     cfs = np.vstack(cfs)
     nums = np.vstack(nums)
     cfs = np.sum(cfs, axis=0)
@@ -204,7 +203,13 @@ if __name__ == "__main__":
                         help='Concentration.')
     parser.add_argument('--lb', type=float, default=10.0,
                         help='Bjerrum length.')
-    parser.add_argument('--experiment_name', type=str, default='220104_NO',
+    parser.add_argument('--min_r_value', type=float, default=0.0,
+                        help='Minimum r value.')
+    parser.add_argument('--max_r_value', type=float, default=6.0,
+                        help='Maximum r value.')
+    parser.add_argument('--bin_size', type=float, default=0.1,
+                        help='Bin size.')
+    parser.add_argument('--experiment_name', type=str, default='220104_WL_ENSEMBLE',
                         help='Name of experiment.')
     args = parser.parse_args()
 
