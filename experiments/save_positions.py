@@ -9,11 +9,11 @@ import pdb
 
 import numpy as np
 
-def correlation_function(anions, conductivities, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
+def correlation_function(anions, conductivities, k_avg, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y = np.zeros(x.shape[0])
     n = np.zeros(x.shape[0])
-    product = np.matmul(conductivities.reshape(-1, 1), conductivities.reshape(1, -1))
+    product = np.matmul((conductivities.reshape(-1, 1) - k_avg), (conductivities.reshape(1, -1) - k_avg))
     distances = np.zeros(product.shape)
     for i in range(anions.shape[0]):
         anion = anions[i, :].reshape(1, 3)
@@ -28,59 +28,6 @@ def correlation_function(anions, conductivities, min_r_value=0, max_r_value=4.0,
         n[j] += selected.shape[0]
 
     return x, y, n
-
-"""
-def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
-    '''
-    Function to offset the "center" of a colormap. Useful for
-    data with a negative min and positive max and you want the
-    middle of the colormap's dynamic range to be at zero.
-
-    Input
-    -----
-      cmap : The matplotlib colormap to be altered
-      start : Offset from lowest point in the colormap's range.
-          Defaults to 0.0 (no lower offset). Should be between
-          0.0 and `midpoint`.
-      midpoint : The new center of the colormap. Defaults to
-          0.5 (no shift). Should be between 0.0 and 1.0. In
-          general, this should be  1 - vmax / (vmax + abs(vmin))
-          For example if your data range from -15.0 to +5.0 and
-          you want the center of the colormap at 0.0, `midpoint`
-          should be set to  1 - 5/(5 + 15)) or 0.75
-      stop : Offset from highest point in the colormap's range.
-          Defaults to 1.0 (no upper offset). Should be between
-          `midpoint` and 1.0.
-    '''
-    cdict = {
-        'red': [],
-        'green': [],
-        'blue': [],
-        'alpha': []
-    }
-
-    # regular index to compute the colors
-    reg_index = np.linspace(start, stop, 257)
-
-    # shifted index to match the data
-    shift_index = np.hstack([
-        np.linspace(0.0, midpoint, 128, endpoint=False),
-        np.linspace(midpoint, 1.0, 129, endpoint=True)
-    ])
-
-    for ri, si in zip(reg_index, shift_index):
-        r, g, b, a = cmap(ri)
-
-        cdict['red'].append((si, r, r))
-        cdict['green'].append((si, g, g))
-        cdict['blue'].append((si, b, b))
-        cdict['alpha'].append((si, a, a))
-
-    newcmap = matplotlib.colors.LinearSegmentedColormap(name, cdict)
-    plt.register_cmap(cmap=newcmap)
-
-    return newcmap
-"""
 
 
 def main(args):
@@ -130,7 +77,9 @@ def main(args):
     if not os.path.exists(ptp + 'correlation_functions'):
         os.makedirs(ptp + 'correlation_functions')
 
-    print('Concentration {}\t lB {}'.format(conc, lb))
+    k_avg = np.mean(preds_mn)
+
+    print('Concentration {}\t lB {} Conductivity {}'.format(conc, lb, k_avg))
 
     idx = 0
     cfs = []
@@ -146,15 +95,15 @@ def main(args):
         idx += anions.shape[0]
         #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
-        np.save(ptp + 'snapshots/conductivity_mn_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_mn)
-        np.save(ptp + 'snapshots/conductivity_std_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_std)
+        #np.save(ptp + 'snapshots/conductivity_mn_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_mn)
+        #np.save(ptp + 'snapshots/conductivity_std_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_std)
 
         if snapshot_id == 0:
-            x, cf, num = correlation_function(anions, conductivities_mn, min_r_value=min_r_value,
+            x, cf, num = correlation_function(anions, conductivities_mn, k_avg, min_r_value=min_r_value,
                                               max_r_value=max_r_value, bin_size=bin_size,
                                               box_length=box_length)
         else:
-            _, cf, num = correlation_function(anions, conductivities_mn, min_r_value=min_r_value,
+            _, cf, num = correlation_function(anions, conductivities_mn, k_avg, min_r_value=min_r_value,
                                               max_r_value=max_r_value, bin_size=bin_size,
                                               box_length=box_length)
         cfs.append(cf)
@@ -168,30 +117,6 @@ def main(args):
     print(cf)
     np.save(ptp + 'correlation_functions/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/correlation_function_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', cf)
-    """
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
-    for axis in ['bottom', 'left']:
-        ax.spines[axis].set_linewidth(2.0)
-    for axis in ['top', 'right']:
-        ax.spines[axis].set_visible(False)
-    ax.scatter(x, cf, color='tab:blue', linewidth=2.0, alpha=0.7)
-    ax.set_xlabel('Distance', fontsize=fontsize)
-    ax.set_ylabel('Correlation function', fontsize=fontsize)
-    ax.set_xlim(min_r_value, max_r_value)
-
-    figsize = (7,7)
-        import matplotlib.pyplot as plt
-        import matplotlib as mpl
-        # Generate plot
-        midpoint = 1- conductivities_mn.max()/(conductivities_mn.max() - conductivities_mn.min())
-        orig_cmap = mpl.cm.coolwarm
-        shifted_cmap = shiftedColorMap(orig_cmap, midpoint=midpoint, name='shifted')
-
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(anions[:, 0], anions[:, 1], anions[:, 2], marker='o', c=conductivities_mn, cmap=shifted_cmap)
-        fig.savefig(ptp + 'figures/conductivity_{}_{}_{}.png'.format(conc, lb, snapshot_id), dpi=400)
-    """
 
     print('Done.')
 

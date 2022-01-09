@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ptd', type=str, default='../../data/',
                         help='Path to directory containing data.')
-    parser.add_argument('--experiment_name', type=str, default='NEW_VAE',
+    parser.add_argument('--experiment_name', type=str, default='220104_NO',
                         help='Name of experiment.')
     parser.add_argument('--hidden_dims', nargs='+', type=int,
                         default=[50, ],

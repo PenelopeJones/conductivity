@@ -301,7 +301,6 @@ def main(args):
     encoder = VanillaNN(in_dim=mu_x.shape[0], out_dim=latent_dim, hidden_dims=encoder_dims)
     decoder = VanillaNN(in_dim=latent_dim, out_dim=mu_x.shape[0], hidden_dims=decoder_dims)
 
-
     ae_criterion = nn.MSELoss()
     ae_optimiser = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=lr)
 
@@ -399,6 +398,9 @@ def main(args):
         optimiser.step()
 
     f.close()
+
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

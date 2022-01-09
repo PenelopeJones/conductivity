@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import Normalize
 
-
-
 from utils.util import train_test_split, train_valid_split, data_loader_full, VanillaNN, aggregate_metrics
 
 import pdb
@@ -34,8 +32,8 @@ def main(args):
 
     xmin = -2.5
     xmax = 2.5
-    ymin = -0.4
-    ymax = 0.8
+    ymin = -0.8
+    ymax = 1.2
     fontsize = 20
     bins = np.linspace(xmin, xmax, 100)
     fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -60,6 +58,9 @@ def main(args):
     bincentres = [(bins[i] + bins[i + 1]) / 2. for i in range(len(bins) - 1)]
 
     for i in range(concs.shape[0]):
+
+
+
         ax.step(bincentres, sys_hists[i] - sys_hist_mn, where='mid', color=cmap(norm(lbs[i])), alpha=0.7, label='Conc {} lB {}'.format(concs[i], lbs[i]))
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
@@ -97,9 +98,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ptd', type=str, default='../../data/',
+    parser.add_argument('--ptd', type=str, default='../data/',
                         help='Path to directory containing data.')
-    parser.add_argument('--experiment_name', type=str, default='NEW_VAE_ENSEMBLE',
+    parser.add_argument('--experiment_name', type=str, default='220104_WL_ENSEMBLE',
                         help='Name of experiment.')
     parser.add_argument('--print_freq', type=int, default=50,
                         help='Print frequency.')
