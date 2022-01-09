@@ -13,7 +13,7 @@ def correlation_function(anions, conductivities, k_avg, min_r_value=0, max_r_val
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y = np.zeros(x.shape[0])
     n = np.zeros(x.shape[0])
-    product = np.matmul((conductivities.reshape(-1, 1) - k_avg), (conductivities.reshape(1, -1) - k_avg))
+    product = np.matmul((conductivities - k_avg).reshape(-1, 1), (conductivities - k_avg).reshape(1, -1))
     distances = np.zeros(product.shape)
     for i in range(anions.shape[0]):
         anion = anions[i, :].reshape(1, 3)
@@ -110,6 +110,7 @@ def main(args):
         nums.append(num)
     cfs = np.vstack(cfs)
     nums = np.vstack(nums)
+    pdb.set_trace()
     cfs = np.sum(cfs, axis=0)
     nums = np.sum(nums, axis=0)
     np.seterr(divide='ignore')
