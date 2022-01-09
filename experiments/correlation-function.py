@@ -86,12 +86,12 @@ def main(args):
     nums = []
 
     for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
-        print(snapshot_id)
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         #cations = cation_positions[snapshot_id, :, :]
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
+        print('Snapshot {} Conductivity {:.3f}'.format(snapshot_id, np.mean(conductivities_mn)))
         idx += anions.shape[0]
         #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
