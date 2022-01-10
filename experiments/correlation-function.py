@@ -9,6 +9,11 @@ import pdb
 
 import numpy as np
 
+def weighted_stats(means, stds):
+    var = 1.0 / np.sum(np.reciprocal(stds**2))
+    mean = var * np.sum(np.multiply(means, np.reciprocal(stds**2)))
+    return mean, np.sqrt(var)
+
 def correlation_function(anions, conductivities, k_avg, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y = np.zeros(x.shape[0])
@@ -78,8 +83,9 @@ def main(args):
         os.makedirs(ptp + 'correlation_functions')
 
     k_avg = np.mean(preds_mn)
+    weighted_k_avg, weighted_k_std = weighted_stats(preds_mn, preds_std)
 
-    print('Concentration {}\t lB {} Conductivity {}'.format(conc, lb, k_avg))
+    print('Concentration {}\t lB {} Conductivity {:.3f} Weighted conductivity {:.3f}+-{:.3f}'.format(conc, lb, k_avg, weighted_k_avg, weighted_k_std))
 
     idx = 0
     cfs = []
@@ -91,7 +97,8 @@ def main(args):
         #cations = cation_positions[snapshot_id, :, :]
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
-        print('Snapshot {} Conductivity {:.3f}'.format(snapshot_id, np.mean(conductivities_mn)))
+        snapshot_mn, snapshot_std = weighted_stats(conductivities_mn, conductivities_std)
+        print('Snapshot {} Conductivity {:.3f} Weighted conductivity {:.3f}+-{:.3f}'.format(snapshot_id, np.mean(conductivities_mn), snapshot_mn, snapshot_std))
         idx += anions.shape[0]
         #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
