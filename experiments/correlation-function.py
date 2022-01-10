@@ -99,7 +99,7 @@ def main(args):
     k_avg = np.mean(preds_mn)
     k_std = np.std(preds_mn)
 
-    print('Concentration {}\t lB {} Conductivity {:.3f}+-{:.3f}'.format(conc, lb, k_avg, k_std))
+    print('Concentration {}\t lB {} Conductivity {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_std))
 
     idx = 0
     cfs = []
@@ -116,7 +116,8 @@ def main(args):
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
         snapshot_mn = np.mean(conductivities_mn)
         means.append(snapshot_mn)
-        print('Snapshot {} Conductivity {:.3f}'.format(snapshot_id, snapshot_mn))
+        if snapshot_mn < 0:
+            print('Snapshot {} Conductivity {:.3f}'.format(snapshot_id, snapshot_mn))
         idx += anions.shape[0]
         #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
@@ -135,12 +136,10 @@ def main(args):
         nums.append(num)
     cfs = np.vstack(cfs)
     nums = np.vstack(nums)
-    pdb.set_trace()
     cfs = np.sum(cfs, axis=0)
     nums = np.sum(nums, axis=0)
     np.seterr(divide='ignore')
     cf = np.divide(cfs, nums)
-    pdb.set_trace()
     means = np.hstack(np.array(means)).reshape(-1)
     print('Check: Global {:.4f} Snapshots {:.4f}+-{:.4f}'.format(k_avg, np.mean(means), np.std(means)))
     np.save(ptp + 'correlation_functions/210109_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
