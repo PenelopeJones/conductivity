@@ -65,11 +65,12 @@ def main(args):
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
         paired = classify_as_paired(anions, cations, r_cutoff, box_length)
+        print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paired), 100*np.sum(paired) / paired.shape[0]))
         paireds.append(paired.reshape(-1))
     paireds = np.hstack(paireds).reshape(-1)
     print(paireds.shape)
-    print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paired), 100*np.sum(paired) / paired.shape[0]))
-    np.save(ptp + 'predictions/paired/static_paired_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', paired)
+    print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paireds), 100*np.sum(paireds) / paireds.shape[0]))
+    np.save(ptp + 'predictions/paired/static_paired_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', paireds)
 
     print('Done.')
 
