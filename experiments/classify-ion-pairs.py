@@ -67,6 +67,7 @@ def main(args):
         paireds.append(paired.reshape(-1))
     paireds = np.hstack(paireds).reshape(-1)
     print(paireds.shape)
+    print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paired), 100*np.sum(paired) / paired.shape[0]))
     np.save(ptp + 'predictions/paired/static_paired_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', paired)
 
     print('Done.')
