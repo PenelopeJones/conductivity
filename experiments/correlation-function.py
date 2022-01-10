@@ -97,13 +97,16 @@ def main(args):
         os.makedirs(ptp + 'correlation_functions')
 
     k_avg = np.mean(preds_mn)
-    weighted_k_avg, weighted_k_std = weighted_stats(preds_mn, preds_std)
+    k_std = np.std(preds_mn)
 
-    print('Concentration {}\t lB {} Conductivity {:.3f} Weighted conductivity {:.3f}+-{:.3f}'.format(conc, lb, k_avg, weighted_k_avg, weighted_k_std))
+    print('Concentration {}\t lB {} Conductivity {:.3f}+-{:.3f}'.format(conc, lb, k_avg, k_std))
 
     idx = 0
     cfs = []
     nums = []
+
+    means = []
+    stds = []
 
     for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
@@ -111,8 +114,9 @@ def main(args):
         #cations = cation_positions[snapshot_id, :, :]
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
-        snapshot_mn, snapshot_std = weighted_stats(conductivities_mn, conductivities_std)
-        print('Snapshot {} Conductivity {:.3f} Weighted conductivity {:.3f}+-{:.3f}'.format(snapshot_id, np.mean(conductivities_mn), snapshot_mn, snapshot_std))
+        snapshot_mn = np.mean(conductivities_mn)
+        means.append(snapshot_mn)
+        print('Snapshot {} Conductivity {:.3f}'.format(snapshot_id, snapshot_mn))
         idx += anions.shape[0]
         #np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         #np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
@@ -136,7 +140,9 @@ def main(args):
     nums = np.sum(nums, axis=0)
     np.seterr(divide='ignore')
     cf = np.divide(cfs, nums)
-    print(cf)
+    pdb.set_trace()
+    means = np.hstack(np.array(means)).reshape(-1)
+    print('Check: Global {:.4f} Snapshots {:.4f}+-{:.4f}'.format(k_avg, np.mean(means), np.std(means)))
     np.save(ptp + 'correlation_functions/210109_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/210109_correlation_function_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', cf)
 
