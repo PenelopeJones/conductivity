@@ -52,13 +52,13 @@ def main(args):
     bin_size = args.bin_size
 
     # Load parameter lists
-    concs = np.load('../data/concentrations.npy')
+    concs = np.load('../../data/concentrations.npy')
     concs = concs.repeat(9).reshape(-1)
-    lbs = np.load('../data/bjerrum_lengths.npy')
+    lbs = np.load('../../data/bjerrum_lengths.npy')
     lbs = np.tile(lbs, 12).reshape(-1)
-    y = np.load('../data/molar_conductivities.npy')
+    y = np.load('../../data/molar_conductivities.npy')
     y = y.reshape(-1)
-    y_err = np.load('../data/molar_conductivities_error.npy')
+    y_err = np.load('../../data/molar_conductivities_error.npy')
     y_err = y_err.reshape(-1)
 
     k_avg = y[np.where((concs == conc) & (lbs == lb))][0]
