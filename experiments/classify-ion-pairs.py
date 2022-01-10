@@ -52,8 +52,8 @@ def main(args):
     print(n_snaps)
     print(skip_snaps)
 
-    if not os.path.exists(ptp):
-        os.makedirs(ptp)
+    if not os.path.exists(ptp + 'predictions/paired/'):
+        os.makedirs(ptp + 'predictions/paired/')
 
     print('Concentration {}\t lB {}'.format(conc, lb))
     paireds = []
@@ -67,7 +67,7 @@ def main(args):
         paireds.append(paired.reshape(-1))
     paireds = np.hstack(paireds).reshape(-1)
     print(paireds.shape)
-    np.save(ptp + 'predictions/static_paired_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', paired)
+    np.save(ptp + 'predictions/paired/static_paired_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', paired)
 
     print('Done.')
 
