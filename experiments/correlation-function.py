@@ -51,6 +51,20 @@ def main(args):
     max_r_value = args.max_r_value
     bin_size = args.bin_size
 
+    # Load parameter lists
+    concs = np.load('../data/concentrations.npy')
+    concs = concs.repeat(9).reshape(-1)
+    lbs = np.load('../data/bjerrum_lengths.npy')
+    lbs = np.tile(lbs, 12).reshape(-1)
+    y = np.load('../data/molar_conductivities.npy')
+    y = y.reshape(-1)
+    y_err = np.load('../data/molar_conductivities_error.npy')
+    y_err = y_err.reshape(-1)
+
+    k_avg = y[np.where((concs == conc) & (lbs == lb))][0]
+    k_avg_err = y_err[np.where((concs == conc) & (lbs == lb))][0]
+    print('Concentration {}\t lB {} k_avg = {:.3f}+-{:.3f}'.format(conc, lb, k_avg, k_avg_err))
+
     # Load ion positions
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
