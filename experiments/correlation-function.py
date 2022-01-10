@@ -63,7 +63,7 @@ def main(args):
 
     k_avg = y[np.where((concs == conc) & (lbs == lb))][0]
     k_avg_err = y_err[np.where((concs == conc) & (lbs == lb))][0]
-    print('Concentration {}\t lB {} k_avg = {:.3f}+-{:.3f}'.format(conc, lb, k_avg, k_avg_err))
+    print('Concentration {}\t lB {} True k = {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_avg_err))
 
     # Load ion positions
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
@@ -77,8 +77,14 @@ def main(args):
             pred = np.load(pts_local)
             preds.append(pred)
     preds = np.vstack(preds)
-    preds_mn = np.mean(preds, axis=0)
+    preds_mn = np.mean(preds, axis=0) # Gives the mean conductivity predicted for each ion (across all models)
     preds_std = np.std(preds, axis=0)
+
+    model_mns = np.mean(preds, axis=1) # Gives the mean conductivity predicted for the system (for each model)
+    sys_mn = np.mean(model_mns)
+    sys_std = np.std(model_mns)
+
+    pdb.set_trace()
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
@@ -99,7 +105,7 @@ def main(args):
     k_avg = np.mean(preds_mn)
     k_std = np.std(preds_mn)
 
-    print('Concentration {}\t lB {} Conductivity {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_std))
+
 
     idx = 0
     cfs = []
@@ -141,7 +147,7 @@ def main(args):
     np.seterr(divide='ignore')
     cf = np.divide(cfs, nums)
     means = np.hstack(np.array(means)).reshape(-1)
-    print('Check: Global {:.4f} Snapshots {:.4f}+-{:.4f}'.format(k_avg, np.mean(means), np.std(means)))
+    print('Check: Global {:.4f}+-{:.4f} Snapshot {:.4f}+-{:.4f}'.format(sys_mn, sys_std, np.mean(means), np.std(means)))
     np.save(ptp + 'correlation_functions/210109_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/210109_correlation_function_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', cf)
 
