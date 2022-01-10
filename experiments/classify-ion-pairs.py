@@ -15,6 +15,7 @@ def classify_as_paired(anions, cations, r_cutoff, box_length):
     for i in range(anions.shape[0]):
         paired = is_paired(anions[i], cations, r_cutoff, box_length)
         x[i] = paired
+    return x
 
 def is_paired(anion, cations, r_cutoff, box_length):
     paired = 0
