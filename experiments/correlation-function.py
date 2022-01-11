@@ -91,7 +91,6 @@ def main(args):
     sys_mn = np.mean(model_mns)
     sys_std = np.std(model_mns)
 
-    pdb.set_trace()
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
@@ -115,7 +114,8 @@ def main(args):
 
 
     idx = 0
-    cfs = []
+    unweighted_cfs = []
+    weighted_cfs = []
     nums = []
 
     means = []
