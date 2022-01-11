@@ -14,10 +14,12 @@ def weighted_stats(means, stds):
     mean = var * np.sum(np.multiply(means, np.reciprocal(stds**2)))
     return mean, np.sqrt(var)
 
-def correlation_function(anions, conductivities, k_avg, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
+def correlation_function(anions, conductivities, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y = np.zeros(x.shape[0])
     n = np.zeros(x.shape[0])
+    k_avg = np.mean(conductivities)
+    k_std = np.std(conductivities)
     product = np.matmul((conductivities - k_avg).reshape(-1, 1), (conductivities - k_avg).reshape(1, -1))
     distances = np.zeros(product.shape)
     for i in range(anions.shape[0]):
@@ -32,7 +34,12 @@ def correlation_function(anions, conductivities, k_avg, min_r_value=0, max_r_val
         y[j] += selected.sum()
         n[j] += selected.shape[0]
 
-    return x, y, n
+    unweighted_cf = np.zeros_like(y)
+    non_zero = n != 0
+    unweighted_cf[non_zero] = np.divide(y[non_zero], n[non_zero])
+    weighted_cf = (1.0/k_std)*unweighted_cf
+
+    return x, unweighted_cf, weighted_cf
 
 
 def main(args):
@@ -131,25 +138,27 @@ def main(args):
         #np.save(ptp + 'snapshots/conductivity_std_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_std)
 
         if snapshot_id == 0:
-            x, cf, num = correlation_function(anions, conductivities_mn, k_avg, min_r_value=min_r_value,
+            x, unweighted_cf, weighted_cf = correlation_function(anions, conductivities_mn, min_r_value=min_r_value,
                                               max_r_value=max_r_value, bin_size=bin_size,
                                               box_length=box_length)
         else:
-            _, cf, num = correlation_function(anions, conductivities_mn, k_avg, min_r_value=min_r_value,
+            _, unweighted_cf, weighted_cf = correlation_function(anions, conductivities_mn, min_r_value=min_r_value,
                                               max_r_value=max_r_value, bin_size=bin_size,
                                               box_length=box_length)
-        cfs.append(cf)
-        nums.append(num)
-    cfs = np.vstack(cfs)
-    nums = np.vstack(nums)
-    cfs = np.sum(cfs, axis=0)
-    nums = np.sum(nums, axis=0)
-    np.seterr(divide='ignore')
-    cf = np.divide(cfs, nums)
+        unweighted_cfs.append(unweighted_cf.reshape(-1))
+        weighted_cfs.append(weighted_cf.reshape(-1))
+    unweighted_cfs = np.vstack(unweighted_cfs)
+    weighted_cfs = np.vstack(weighted_cfs)
+    pdb.set_trace()
+    unweighted_cf = np.mean(unweighted_cfs, axis=0)
+    weighted_cf = np.mean(weighted_cfs, axis=0)
+    pdb.set_trace()
+    print('Check: Sum(weighted cf) = {:.4f} Sum(unweighted cf) = {:.4f}'.format(np.sum(unweighted_cf), np.sum(weighted_cf)))
     means = np.hstack(np.array(means)).reshape(-1)
     print('Check: Global {:.4f}+-{:.4f} Snapshot {:.4f}+-{:.4f}'.format(sys_mn, sys_std, np.mean(means), np.std(means)))
-    np.save(ptp + 'correlation_functions/210109_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
-    np.save(ptp + 'correlation_functions/210109_correlation_function_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', cf)
+    np.save(ptp + 'correlation_functions/210111_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
+    np.save(ptp + 'correlation_functions/210111_unweighted_cf_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', unweighted_cf)
+    np.save(ptp + 'correlation_functions/210111_weighted_cf_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', weighted_cf)
 
     print('Done.')
 
