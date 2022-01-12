@@ -66,14 +66,14 @@ def main(args):
         aggregate_state = classify_aggregate(anions, cations, r_cutoff, box_length)
         charge_state = aggregate_state[:, 1] - aggregate_state[:, 0] + 1
         size_state = aggregate_state[:, 1] + aggregate_state[:, 0] + 1
-        pdb.set_trace()
         states, counts = np.unique(aggregate_state, return_counts=True)
-        pdb.set_trace()
         aggregate_states.append(aggregate_state)
         #print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paired), 100*np.sum(paired) / paired.shape[0]))
         #paireds.append(paired.reshape(-1))
-    states, counts = np.unique(aggregate_state, return_counts=True)
     aggregate_states = np.vstack(aggregate_states).reshape(-1, 2)
+    states, counts = np.unique(aggregate_states, return_counts=True)
+    print(states)
+    print(counts)
 
     #print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paireds), 100*np.sum(paireds) / paireds.shape[0]))
     np.save(ptp + 'predictions/paired/aggregate_states_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', aggregate_states)
