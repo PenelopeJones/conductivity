@@ -71,7 +71,7 @@ def main(args):
         #print('Number paired: {} Percentage paired: {:.2f}'.format(np.sum(paired), 100*np.sum(paired) / paired.shape[0]))
         #paireds.append(paired.reshape(-1))
     aggregate_states = np.vstack(aggregate_states).reshape(-1, 2)
-    states, counts = np.unique(aggregate_states, return_counts=True)
+    states, counts = np.unique(aggregate_states, axis=0, return_counts=True)
     print(states)
     print(counts)
 
