@@ -64,8 +64,8 @@ def main(args):
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
         aggregate_state = classify_aggregate(anions, cations, r_cutoff, box_length)
-        charge_state = aggregates[:, 1] - aggregates[:, 0] + 1
-        size_state = aggregates[:, 1] + aggregates[:, 0] + 1
+        charge_state = aggregate_state[:, 1] - aggregate_state[:, 0] + 1
+        size_state = aggregate_state[:, 1] + aggregate_state[:, 0] + 1
         pdb.set_trace()
         states, counts = np.unique(aggregate_state, return_counts=True)
         pdb.set_trace()
