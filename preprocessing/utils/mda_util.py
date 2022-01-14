@@ -10,6 +10,9 @@ def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinat
     return u
 
 def check_files_exist(dcd_file, data_file):
+    print('Trying to find files at')
+    print(dcd_file)
+    print(data_file)
     if os.path.isfile(dcd_file) and os.path.isfile(data_file):
         print('Located dcd and data files.')
     else:
