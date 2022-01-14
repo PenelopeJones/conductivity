@@ -12,7 +12,6 @@ from utils.mda_util import mda_to_numpy
 
 import pdb
 
-
 def main(args):
 
     conc = args.conc
@@ -21,7 +20,6 @@ def main(args):
     pts = args.pts
     nt = 25000
 
-    # SOAP descriptor parameters
     rcut = 5.0
     nmax = 6
     lmax = 5
