@@ -50,9 +50,9 @@ def create_position_arrays(u, anions, cations, solvent):
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/', dumbbells=False):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
     if dumbbells:
-        data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
-    else:
         data_file = '{}initial_config_dumbbells_conc{}.gsd'.format(ptd, conc)
+    else:
+        data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
