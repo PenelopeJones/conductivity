@@ -18,10 +18,14 @@ def check_files_exist(dcd_file, data_file):
     return
 
 
-def define_atom_types(u):
+def define_atom_types(u, dumbbells):
     # sort atoms into type of molecule
-    anions = u.select_atoms("type Anion")
-    cations = u.select_atoms("type Cation")
+    if dumbbells:
+        anions = u.select_atoms("type Anion or type Anion_Pair")
+        cations = u.select_atoms("type Cation or type Cation_Pair")
+    else:
+        anions = u.select_atoms("type Anion")
+        cations = u.select_atoms("type Cation")
     solvent = u.select_atoms("type Solvent")
     return cations, anions, solvent
 
@@ -40,13 +44,16 @@ def create_position_arrays(u, anions, cations, solvent):
         time += 1
     return anion_positions, cation_positions, solvent_positions
 
-def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
+def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/', dumbbells=False):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
-    data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
+    if dumbbells:
+        data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
+    else:
+        data_file = '{}initial_config_dumbbells_conc{}.gsd'.format(ptd, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
-    cations, anions, solvent = define_atom_types(u)
+    cations, anions, solvent = define_atom_types(u, dumbbells)
     anion_positions, cation_positions, solvent_positions = (
                  create_position_arrays(u, anions, cations, solvent))
 
