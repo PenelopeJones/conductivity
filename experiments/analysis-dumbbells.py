@@ -125,7 +125,7 @@ def main(args):
     true_dumbbells = yd[idx]
     true_err_dumbbells = yd_err[idx]
     pdb.set_trace()
-    X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, std_x, ptd)
+    X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, None, ptd)
     pdb.set_trace()
     (true_test, true_err_test, concs_test, lbs_test) = data_test
 
