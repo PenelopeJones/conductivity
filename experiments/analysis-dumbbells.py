@@ -66,7 +66,7 @@ def data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test,
     ns_test = []
 
     for i in range(concs_test.shape[0]):
-        ptf = ptd + 'X_dumbbells_{}_{}_soap'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_test.append(x.shape[0])
 
