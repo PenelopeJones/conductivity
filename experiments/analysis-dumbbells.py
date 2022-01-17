@@ -25,8 +25,10 @@ def data_loader_dumbbells(concs, lbs, mu, std, ptd):
     if mu is not None:
         X = torch.tensor(((X - mu) / std), dtype=torch.float32)
     else:
-        continue
+        X = torch.tensor(X, dtype=torch.float32)
     return X, ns
+
+
 
 
 def data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptd):
