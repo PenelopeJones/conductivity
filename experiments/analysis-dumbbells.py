@@ -125,7 +125,7 @@ def main(args):
     true_dumbbells = yd[idx]
     true_err_dumbbells = yd_err[idx]
     pdb.set_trace()
-    X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, None, ptd)
+    X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, None, ptx)
     pdb.set_trace()
     (true_test, true_err_test, concs_test, lbs_test) = data_test
 
@@ -143,7 +143,7 @@ def main(args):
         # Load training and validation data
         X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu_x, std_x = data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptx)
 
-        X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, mu_x, std_x, ptd)
+        X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, mu_x, std_x, ptx)
 
         pdb.set_trace()
 
