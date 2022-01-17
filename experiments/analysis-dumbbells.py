@@ -125,9 +125,7 @@ def main(args):
     lbs_dumbbells = lbs[idx]
     true_dumbbells = yd[idx]
     true_err_dumbbells = yd_err[idx]
-    pdb.set_trace()
     X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, None, ptx)
-    pdb.set_trace()
     (true_test, true_err_test, concs_test, lbs_test) = data_test
 
     f = open(pts + log_name, 'w')
@@ -146,7 +144,6 @@ def main(args):
 
         X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, mu_x, std_x, ptx)
 
-        pdb.set_trace()
 
         # Scale y data
         sc_y = StandardScaler()
