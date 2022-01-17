@@ -22,7 +22,10 @@ def data_loader_dumbbells(concs, lbs, mu, std, ptd):
 
         else:
             X = np.concatenate((X, x), axis=0)
-    X = torch.tensor(((X - mu) / std), dtype=torch.float32)
+    if mu is not None:
+        X = torch.tensor(((X - mu) / std), dtype=torch.float32)
+    else:
+        continue
     return X, ns
 
 
@@ -120,7 +123,8 @@ def main(args):
     true_dumbbells = yd[idx]
     true_err_dumbbells = yd_err[idx]
     pdb.set_trace()
-
+    X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, None, std_x, ptd)
+    pdb.set_trace()
     (true_test, true_err_test, concs_test, lbs_test) = data_test
 
     f = open(pts + log_name, 'w')
