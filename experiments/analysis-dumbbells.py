@@ -136,6 +136,8 @@ def main(args):
 
         X_dumbbells, ns_dumbbells = data_loader_dumbbells(concs_dumbbells, lbs_dumbbells, mu_x, std_x, ptd)
 
+        pdb.set_trace()
+
         # Scale y data
         sc_y = StandardScaler()
         y_train = torch.tensor(sc_y.fit_transform(true_train), dtype=torch.float32).reshape(-1, 1)
@@ -178,7 +180,7 @@ def main(args):
             local_preds_dumbbells = np.split(local_preds_dumbbells, idx_dumbbells)
 
             for i in range(concs_dumbbells.shape[0]):
-                pts_local = pts + 'predictions/local_pred_dumbbells_{}_{}_{}_{}'.format(concs_dumbbells[i], lbs_dumbbells[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/dumbbells/local_pred_dumbbells_{}_{}_{}_{}'.format(concs_dumbbells[i], lbs_dumbbells[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_dumbbells[i].reshape(-1))
 
             """
@@ -199,7 +201,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--ptd', type=str, default='../../data/',
                         help='Path to directory containing data.')
-    parser.add_argument('--experiment_name', type=str, default='220104_NO',
+    parser.add_argument('--experiment_name', type=str, default='220104_WL_ENSEMBLE',
                         help='Name of experiment.')
     parser.add_argument('--hidden_dims', nargs='+', type=int,
                         default=[50, ],
