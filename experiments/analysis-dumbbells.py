@@ -23,6 +23,7 @@ def data_loader_dumbbells(concs, lbs, mu, std, ptd):
         else:
             X = np.concatenate((X, x), axis=0)
     X = torch.tensor(((X - mu) / std), dtype=torch.float32)
+    return X, ns
 
 
 def data_loader_full(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptd):
