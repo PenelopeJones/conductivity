@@ -34,7 +34,6 @@ def main(args):
 
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
-    n_solvents = solvent_positions.shape[1]
     n_anions_free = anion_free_positions.shape[1]
     n_anions_paired = anion_paired_positions.shape[1]
     print(n_cations)
