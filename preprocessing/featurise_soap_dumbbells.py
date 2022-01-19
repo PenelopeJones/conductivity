@@ -7,8 +7,7 @@ import numpy as np
 from ase import Atoms
 from dscribe.descriptors import SOAP, ACSF
 
-from utils.feature_util import static_feature_vector
-from utils.mda_util import mda_to_numpy
+from utils.mda_util_dumbbells import mda_to_numpy
 
 import pdb
 
@@ -26,19 +25,26 @@ def main(args):
     sparse = False
 
     ptf = pts + 'X_dumbbells_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
+    ptfl = pts + 'label_dumbbells_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
 
-    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd, dumbbells=True)
+    # extract positions of free anions, paired anions and all free/paired cations
+    anion_free_positions, anion_paired_positions, anion_positions, cation_positions, _, box_length = mda_to_numpy(conc, lb, ptd)
 
     assert anion_positions.shape == cation_positions.shape
+
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
     n_solvents = solvent_positions.shape[1]
+    n_anions_free = anion_free_positions.shape[1]
+    n_anions_paired = anion_paired_positions.shape[1]
     print(n_cations)
+    pdb.set_trace()
 
     cat_sym = 'Na'
     an_sym = 'Cl'
     species = [an_sym, cat_sym]
     symbols = [an_sym]*n_anions + [cat_sym]*n_cations
+
     soap_generator = SOAP(species=species, periodic=True,
                           rcut=rcut, nmax=nmax, lmax=lmax,
                           sparse=sparse)
@@ -56,7 +62,8 @@ def main(args):
     print('Concentration {}\t lB {}'.format(conc, lb))
 
     i = 0
-
+    label = np.array([1]*n_anions_free + [0]*n_anions_paired)
+    labels = []
 
     for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
         t0 = time.time()
@@ -64,15 +71,22 @@ def main(args):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
-        #solvents = solvent_positions[snapshot_id, :, :]
-        positions = np.vstack([anions, cations])
+        anions_free = anion_free_positions[snapshot_id, :, :]
+        anions_paired = anion_paired_positions[snapshot_id, :, :]
+
+        # solvents = solvent_positions[snapshot_id, :, :].
+        # first n_anions_free positions are free anions, then n_anions_paired are paired anions etc.
+        positions = np.vstack([anions_free, anions_paired, cations])
+
         system = Atoms(symbols=symbols, positions=positions,
                        cell=[box_length, box_length, box_length],
                        pbc=True)
         soap = soap_generator.create(system, positions=list(range(0, n_anions)))
         x.append(soap)
+        labels.append(label)
 
         np.save(ptf, np.vstack(x))
+        np.save(ptfl, np.hstack(labels))
         if i % args.print_freq == 0:
             print('Snapshot {}\t Time: {:.1f}'.format(i, (time.time() - t0)))
         i+=1
