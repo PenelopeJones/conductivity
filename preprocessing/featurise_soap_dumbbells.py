@@ -28,7 +28,7 @@ def main(args):
     ptfl = pts + 'label_dumbbells_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
 
     # extract positions of free anions, paired anions and all free/paired cations
-    anion_free_positions, anion_paired_positions, anion_positions, cation_free_positions, cation_paired_positions, cation_positions, _, box_length = mda_to_numpy(conc, lb, ptd)
+    anion_free_positions, anion_paired_positions, anion_positions, _, _, cation_positions, _, box_length = mda_to_numpy(conc, lb, ptd)
 
     assert anion_positions.shape == cation_positions.shape
 
