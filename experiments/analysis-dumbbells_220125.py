@@ -119,9 +119,9 @@ def main(args):
     yd = np.load(ptd + 'dumbbell_molar_cond.npy')
     yd_err = np.load(ptd + 'dumbbell_molar_cond_error.npy')
     idx = np.where(np.invert(np.isnan(yd)))
-    concs_dumbbells = concs_orig[idx]
-    lbs_dumbbells = lbs_orig[idx]
-    fracs_dumbbells = fracs[idx]
+    concs_dumbbells = concs_orig[idx[0]]
+    lbs_dumbbells = lbs_orig[idx[1]]
+    fracs_dumbbells = fracs[idx[2]]
     true_dumbbells = yd[idx]
     true_err_dumbbells = yd_err[idx]
 
