@@ -7,7 +7,7 @@ import numpy as np
 from ase import Atoms
 from dscribe.descriptors import SOAP, ACSF
 
-from utils.mda_util_dumbbells import mda_to_numpy
+from utils.mda_util_dumbbells import mda_to_numpy_frac
 
 import pdb
 
