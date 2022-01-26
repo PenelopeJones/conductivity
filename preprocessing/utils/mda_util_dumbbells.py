@@ -64,3 +64,14 @@ def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
     anion_free_positions, anion_paired_positions, anion_positions, cation_free_positions, cation_paired_positions, cation_positions, solvent_positions = (create_position_arrays(u, anions_free, anions_paired, anions, cations_free, cations_paired, cations, solvent))
 
     return anion_free_positions, anion_paired_positions, anion_positions, cation_free_positions, cation_paired_positions, cation_positions, solvent_positions, box_length
+
+def mda_to_numpy_frac(conc, lb, frac, ptd='../../data/md-trajectories/'):
+    dcd_file = '{}frac{}_conc{}_lb{}.dcd'.format(ptd, frac, conc, lb)
+    data_file = '{}initial_config_dumbbells_frac{}_conc{}.gsd'.format(ptd, frac, conc)
+    check_files_exist(dcd_file, data_file)
+    u = create_mda(dcd_file, data_file)
+    box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
+    cations, anions, solvent, anions_free, anions_paired, cations_free, cations_paired = define_atom_types(u)
+    anion_free_positions, anion_paired_positions, anion_positions, cation_free_positions, cation_paired_positions, cation_positions, solvent_positions = (create_position_arrays(u, anions_free, anions_paired, anions, cations_free, cations_paired, cations, solvent))
+
+    return anion_free_positions, anion_paired_positions, anion_positions, cation_free_positions, cation_paired_positions, cation_positions, solvent_positions, box_length
