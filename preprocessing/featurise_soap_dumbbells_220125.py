@@ -38,7 +38,8 @@ def main(args):
     n_anions_free = anion_free_positions.shape[1]
     n_anions_paired = anion_paired_positions.shape[1]
     print(n_cations)
-    pdb.set_trace()
+    print(n_anions_free)
+    print(n_anions_paired)
 
     cat_sym = 'Na'
     an_sym = 'Cl'
