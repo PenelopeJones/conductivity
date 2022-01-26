@@ -108,8 +108,8 @@ def main(args):
     y_err = y_err.reshape(-1, 1)
     concs_orig = np.load(ptd + 'concentrations.npy') #[12, ]
     lbs_orig = np.load(ptd + 'bjerrum_lengths.npy') #[9, ]
-    concs = concs.repeat(9).reshape(-1)
-    lbs = np.tile(lbs, 12).reshape(-1)
+    concs = concs_orig.repeat(9).reshape(-1)
+    lbs = np.tile(lbs_orig, 12).reshape(-1)
 
     data = (y, y_err, concs, lbs)
     data_train_valid, data_test = train_test_split(data, seed=10)
