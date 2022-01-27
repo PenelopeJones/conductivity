@@ -121,7 +121,6 @@ def main(args):
     means = []
     stds = []
 
-    ncfs =
     for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
