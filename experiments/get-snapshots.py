@@ -100,7 +100,7 @@ def main(args):
     if not os.path.exists(ptp + 'snapshots'):
         os.makedirs(ptp + 'snapshots')
     idx = 0
-    for snapshot_id in range(0, min(n_snapshots, 25), max(1, skip_snaps)):
+    for snapshot_id in range(0, min(n_snapshots, 25*skip_snaps), max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
