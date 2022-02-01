@@ -99,13 +99,14 @@ def main(args):
 
     if not os.path.exists(ptp + 'snapshots'):
         os.makedirs(ptp + 'snapshots')
-
+    idx = 0
     for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
         conductivities_mn = preds_mn[idx:(idx+anions.shape[0])]
         conductivities_std = preds_std[idx:(idx + anions.shape[0])]
+        idx += anions.shape[0]
         np.save(ptp + 'snapshots/anions_{}_{}_{}.npy'.format(conc, lb, snapshot_id), anions)
         np.save(ptp + 'snapshots/cations_{}_{}_{}.npy'.format(conc, lb, snapshot_id), cations)
         np.save(ptp + 'snapshots/conductivity_mn_{}_{}_{}.npy'.format(conc, lb, snapshot_id), conductivities_mn)
