@@ -30,7 +30,7 @@ def main(args):
     lmax = 5
     sparse = False
 
-    ptf = pts + 'X_{}_{}_soap'.format(conc, lb).replace('.', '-') + '.npy'
+    ptf = pts + 'X_{}_{}_soap_libr'.format(conc, lb).replace('.', '-') + '.npy'
 
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
@@ -40,8 +40,10 @@ def main(args):
     n_solvents = solvent_positions.shape[1]
     print(n_cations)
 
-    cat_sym = 'Na'
-    an_sym = 'Cl'
+    #cat_sym = 'Na'
+    #an_sym = 'Cl'
+    cat_sym = 'Li'
+    an_sym = 'Br'
     species = [an_sym, cat_sym]
     symbols = [an_sym]*n_anions + [cat_sym]*n_cations
     soap_generator = SOAP(species=species, periodic=True,
