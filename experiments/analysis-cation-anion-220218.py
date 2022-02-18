@@ -113,7 +113,7 @@ def main(args):
         (true_valid, true_err_valid, concs_valid, lbs_valid) = data_valid
 
         # Load training and validation data
-        X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu_x, std_x = data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptx)
+        X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu_x, std_x = data_loader_all(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptx)
 
         # Scale y data
         sc_y = StandardScaler()
