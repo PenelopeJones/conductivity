@@ -30,7 +30,7 @@ def main(args):
     lmax = 5
     sparse = False
 
-    ptf = pts + 'X_{}_{}_soap_cation'.format(conc, lb).replace('.', '-') + '.npy'
+    ptf = pts + 'X_{}_{}_soap_cation_reverse'.format(conc, lb).replace('.', '-') + '.npy'
 
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
@@ -42,8 +42,8 @@ def main(args):
 
     cat_sym = 'Na'
     an_sym = 'Cl'
-    species = [cat_sym, an_sym]
-    symbols = [cat_sym]*n_cations+[an_sym]*n_anions
+    species = [an_sym, cat_sym]
+    symbols = [an_sym]*n_anions + [cat_sym]*n_cations
     soap_generator = SOAP(species=species, periodic=True,
                           rcut=rcut, nmax=nmax, lmax=lmax,
                           sparse=sparse)
@@ -67,14 +67,14 @@ def main(args):
         t0 = time.time()
 
         # Select ion positions at a given snapshot
-        anions = anion_positions[snapshot_id, :, :]
-        cations = cation_positions[snapshot_id, :, :]
+        cations = anion_positions[snapshot_id, :, :]
+        anions = cation_positions[snapshot_id, :, :]
         #solvents = solvent_positions[snapshot_id, :, :]
-        positions = np.vstack([cations, anions])
+        positions = np.vstack([anions, cations])
         system = Atoms(symbols=symbols, positions=positions,
                        cell=[box_length, box_length, box_length],
                        pbc=True)
-        soap = soap_generator.create(system, positions=list(range(0, n_cations)))
+        soap = soap_generator.create(system, positions=list(range(0, n_anions)))
         x.append(soap)
 
         np.save(ptf, np.vstack(x))
