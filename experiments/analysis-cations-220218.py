@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Script to predict local conductivity given SOAP descriptors of just cations.
+"""
 import argparse
 import time
 import sys
@@ -35,7 +38,8 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     # We are now testing on the data generated only from cation local environments. Need to check what these plots look like.
     ns_train = []
     for i in range(concs_train.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_train.append(x.shape[0])
 
@@ -48,7 +52,8 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_valid = []
 
     for i in range(concs_valid.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_valid.append(x.shape[0])
 
@@ -61,7 +66,8 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_test = []
 
     for i in range(concs_test.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_test.append(x.shape[0])
 
@@ -85,7 +91,7 @@ def main(args):
     hidden_dims = args.hidden_dims
     experiment_name = args.experiment_name
 
-    log_name = '{}_log_analysis.txt'.format(experiment_name)
+    log_name = '{}_log_cation_reverse.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
 
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -150,15 +156,15 @@ def main(args):
             local_preds_test = np.split(local_preds_test, idx_test)
 
             for i in range(concs_train.shape[0]):
-                pts_local = pts + 'predictions/cations/local_pred_{}_{}_{}_{}_cation'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_train[i].reshape(-1))
 
             for i in range(concs_valid.shape[0]):
-                pts_local = pts + 'predictions/cations/local_pred_{}_{}_{}_{}_cation'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_valid[i].reshape(-1))
 
             for i in range(concs_test.shape[0]):
-                pts_local = pts + 'predictions/cations/local_pred_{}_{}_{}_{}_cation'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_test[i].reshape(-1))
 
 
