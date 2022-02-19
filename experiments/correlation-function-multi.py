@@ -188,8 +188,8 @@ def main(args):
 
 
         else:
-            _, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a,
-                                                                         conductivities_c, min_r_value=min_r_value,
+            _, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a_mn,
+                                                                         conductivities_c_mn, min_r_value=min_r_value,
                                                                          max_r_value=max_r_value, bin_size=bin_size,
                                                                          box_length=box_length)
             ncf_nom_aa += y_aa
