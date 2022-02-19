@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Script to predict local conductivity given SOAP descriptors of both cations and anions.
+"""
 import argparse
 import time
 import sys
