@@ -38,9 +38,10 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     # We are now testing on the data generated only from cation local environments. Need to check what these plots look like.
     ns_train = []
     for i in range(concs_train.shape[0]):
-        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
-        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
+
         ns_train.append(x.shape[0])
 
         if i == 0:
@@ -52,8 +53,8 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_valid = []
 
     for i in range(concs_valid.shape[0]):
-        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
-        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_valid.append(x.shape[0])
 
@@ -66,8 +67,8 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_test = []
 
     for i in range(concs_test.shape[0]):
-        #ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
-        ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_test.append(x.shape[0])
 
@@ -76,10 +77,14 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
 
         else:
             X_test = np.concatenate((X_test, x), axis=0)
-
-    X_train = torch.tensor(((X_train - mu) / std), dtype=torch.float32)
-    X_valid = torch.tensor(((X_valid - mu) / std), dtype=torch.float32)
-    X_test = torch.tensor(((X_test - mu) / std), dtype=torch.float32)
+    dim = X_train.shape[1] // 2
+    X_train_new = np.hstack([X_train[:, dim:], X_train[:, 0:dim]])
+    X_valid_new = np.hstack([X_valid[:, dim:], X_valid[:, 0:dim]])
+    X_test_new = np.hstack([X_test[:, dim:], X_test[:, 0:dim]])
+    pdb.set_trace()
+    X_train = torch.tensor(((X_train_new - mu) / std), dtype=torch.float32)
+    X_valid = torch.tensor(((X_valid_new - mu) / std), dtype=torch.float32)
+    X_test = torch.tensor(((X_test_new - mu) / std), dtype=torch.float32)
 
     return X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu, std
 
@@ -91,7 +96,7 @@ def main(args):
     hidden_dims = args.hidden_dims
     experiment_name = args.experiment_name
 
-    log_name = '{}_log_cation_reverse.txt'.format(experiment_name)
+    log_name = '{}_log_cation.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
 
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -156,15 +161,15 @@ def main(args):
             local_preds_test = np.split(local_preds_test, idx_test)
 
             for i in range(concs_train.shape[0]):
-                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_train[i].reshape(-1))
 
             for i in range(concs_valid.shape[0]):
-                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_valid[i].reshape(-1))
 
             for i in range(concs_test.shape[0]):
-                pts_local = pts + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_test[i].reshape(-1))
 
 
