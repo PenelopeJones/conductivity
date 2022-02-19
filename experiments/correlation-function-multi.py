@@ -164,18 +164,19 @@ def main(args):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
+
         conductivities_a_mn = preds_a_mn[idx:(idx+anions.shape[0])]
         conductivities_c_mn = preds_c_mn[idx:(idx+cations.shape[0])]
         snapshot_a_mn = np.mean(conductivities_a_mn)
-        snapshot_c_mn = np.mean(conductivities_a_mn)
-        #means.append(snapshot_mn)
+        snapshot_c_mn = np.mean(conductivities_c_mn)
+
         if ((snapshot_a_mn < 0) or (snapshot_c_mn < 0)):
             print('Snapshot {} Conductivity {:.3f} {:.3f}'.format(snapshot_id, snapshot_a_mn, snapshot_c_mn))
         idx += anions.shape[0]
 
         if snapshot_id == 0:
-            x, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a,
-                                                                         conductivities_c, min_r_value=min_r_value,
+            x, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a_mn,
+                                                                         conductivities_c_mn, min_r_value=min_r_value,
                                                                          max_r_value=max_r_value, bin_size=bin_size,
                                                                          box_length=box_length)
             ncf_nom_aa = y_aa
