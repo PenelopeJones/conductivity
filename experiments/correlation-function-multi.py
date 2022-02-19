@@ -212,7 +212,6 @@ def main(args):
     non_zero = ncf_denom_cc != 0
     ncf_cc[non_zero] = np.divide(ncf_nom_cc[non_zero], ncf_denom_cc[non_zero])
 
-    print('Check: Global {:.4f}+-{:.4f} Snapshot {:.4f}+-{:.4f}'.format(sys_mn, sys_std, np.mean(means), np.std(means)))
     np.save(ptp + 'correlation_functions/220218/220218_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/220218/220218_ncf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
     np.save(ptp + 'correlation_functions/220218/220218_ncf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_ac)
