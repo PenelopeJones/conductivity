@@ -184,7 +184,7 @@ def main(args):
             ncf_nom_ac = y_ac
             ncf_denom_ac = n_ac
             ncf_nom_cc = y_cc
-            ncf_denom_cc = n_c
+            ncf_denom_cc = n_cc
 
 
         else:
@@ -197,7 +197,7 @@ def main(args):
             ncf_nom_ac += y_ac
             ncf_denom_ac += n_ac
             ncf_nom_cc += y_cc
-            ncf_denom_cc += n_c
+            ncf_denom_cc += n_cc
 
     ncf_aa = np.zeros_like(y_aa)
     ncf_ac = np.zeros_like(y_ac)
