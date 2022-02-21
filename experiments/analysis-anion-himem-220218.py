@@ -87,13 +87,13 @@ def main(args):
             model.eval()
 
             for i in range(concs.shape[0]):
-                ptf = ptd + 'X_{}_{}_soap_every_anion'.format(concs[i], lbs[i]).replace('.', '-') + '.npy'
+                ptf = ptx + 'X_{}_{}_soap_every_anion'.format(concs[i], lbs[i]).replace('.', '-') + '.npy'
                 print(ptf)
                 try:
                     x = np.load(ptf, allow_pickle=True)
                 except:
                     print('Cannot load full file. Instead use smaller file')
-                    ptf = ptd + 'X_{}_{}_soap'.format(concs[i], lbs[i]).replace('.', '-') + '.npy'
+                    ptf = ptx + 'X_{}_{}_soap'.format(concs[i], lbs[i]).replace('.', '-') + '.npy'
                     x = np.load(ptf, allow_pickle=True)
                 x = torch.tensor((x - mu_x) / std_x, dtype=torch.float32)
                 print(x.shape)
