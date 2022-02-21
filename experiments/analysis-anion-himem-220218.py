@@ -73,7 +73,7 @@ def main(args):
         (true_train, true_err_train, concs_train, lbs_train) = data_train
         (true_valid, true_err_valid, concs_valid, lbs_valid) = data_valid
 
-        mu, std = load_scalers(concs_train, lbs_train, ptx)
+        mu_x, std_x = load_scalers(concs_train, lbs_train, ptx)
 
         # Scale y data
         sc_y = StandardScaler()
@@ -95,7 +95,7 @@ def main(args):
                     print('Cannot load full file. Instead use smaller file')
                     ptf = ptd + 'X_{}_{}_soap'.format(concs[i], lbs[i]).replace('.', '-') + '.npy'
                     x = np.load(ptf, allow_pickle=True)
-                x = torch.tensor((x - mu) / std, dtype=torch.float32)
+                x = torch.tensor((x - mu_x) / std_x, dtype=torch.float32)
                 print(x.shape)
                 local_pred = sc_y.inverse_transform(model.forward(x).detach().numpy())
                 pts_local = pts + 'predictions/every/local_pred_{}_{}_{}_{}_every_anion'.format(concs[i], lbs[i], n_split, run_id).replace('.', '-') + '.npy'
