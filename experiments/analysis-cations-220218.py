@@ -23,6 +23,7 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
 
     for i in range(concs_train.shape[0]):
         ptf = ptd + 'X_{}_{}_soap'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        print(ptf)
         x = np.load(ptf, allow_pickle=True)
         mus.append(np.mean(x, axis=0))
         vars.append(np.var(x, axis=0))
@@ -40,7 +41,9 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     for i in range(concs_train.shape[0]):
         ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        print(ptf)
         x = np.load(ptf, allow_pickle=True)
+
 
         ns_train.append(x.shape[0])
 
@@ -55,7 +58,9 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     for i in range(concs_valid.shape[0]):
         ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        print(ptf)
         x = np.load(ptf, allow_pickle=True)
+
         ns_valid.append(x.shape[0])
 
         if i == 0:
@@ -68,6 +73,7 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
 
     for i in range(concs_test.shape[0]):
         ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        print(ptf)
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_test.append(x.shape[0])
