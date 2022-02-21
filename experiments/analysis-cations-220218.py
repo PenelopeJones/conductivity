@@ -38,7 +38,7 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     # We are now testing on the data generated only from cation local environments. Need to check what these plots look like.
     ns_train = []
     for i in range(concs_train.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_train[i], lbs_train[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
 
@@ -53,7 +53,7 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_valid = []
 
     for i in range(concs_valid.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_valid[i], lbs_valid[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_valid.append(x.shape[0])
@@ -67,7 +67,7 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
     ns_test = []
 
     for i in range(concs_test.shape[0]):
-        ptf = ptd + 'X_{}_{}_soap_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
+        ptf = ptd + 'X_{}_{}_soap_every_cation'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         #ptf = ptd + 'X_{}_{}_soap_cation_reverse'.format(concs_test[i], lbs_test[i]).replace('.', '-') + '.npy'
         x = np.load(ptf, allow_pickle=True)
         ns_test.append(x.shape[0])
@@ -77,14 +77,10 @@ def data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_te
 
         else:
             X_test = np.concatenate((X_test, x), axis=0)
-    dim = X_train.shape[1] // 2
-    X_train_new = np.hstack([X_train[:, dim:], X_train[:, 0:dim]])
-    X_valid_new = np.hstack([X_valid[:, dim:], X_valid[:, 0:dim]])
-    X_test_new = np.hstack([X_test[:, dim:], X_test[:, 0:dim]])
-    pdb.set_trace()
-    X_train = torch.tensor(((X_train_new - mu) / std), dtype=torch.float32)
-    X_valid = torch.tensor(((X_valid_new - mu) / std), dtype=torch.float32)
-    X_test = torch.tensor(((X_test_new - mu) / std), dtype=torch.float32)
+
+    X_train = torch.tensor(((X_train) / std), dtype=torch.float32)
+    X_valid = torch.tensor(((X_valid) / std), dtype=torch.float32)
+    X_test = torch.tensor(((X_test) / std), dtype=torch.float32)
 
     return X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu, std
 
@@ -96,7 +92,7 @@ def main(args):
     hidden_dims = args.hidden_dims
     experiment_name = args.experiment_name
 
-    log_name = '{}_log_cation.txt'.format(experiment_name)
+    log_name = '{}_log_every_cation.txt'.format(experiment_name)
     pts = '../results/{}/'.format(experiment_name)
 
     y = np.load(ptd + 'molar_conductivities.npy')
@@ -125,7 +121,9 @@ def main(args):
 
         # Load training and validation data
         X_train, ns_train, X_valid, ns_valid, X_test, ns_test, mu_x, std_x = data_loader_cations(concs_train, lbs_train, concs_valid, lbs_valid, concs_test, lbs_test, ptx)
-
+        print(ns_train)
+        print(ns_test)
+        print(ns_valid)
         # Scale y data
         sc_y = StandardScaler()
         y_train = torch.tensor(sc_y.fit_transform(true_train), dtype=torch.float32).reshape(-1, 1)
@@ -161,15 +159,15 @@ def main(args):
             local_preds_test = np.split(local_preds_test, idx_test)
 
             for i in range(concs_train.shape[0]):
-                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/every/local_pred_{}_{}_{}_{}_every_cation'.format(concs_train[i], lbs_train[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_train[i].reshape(-1))
 
             for i in range(concs_valid.shape[0]):
-                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/every/local_pred_{}_{}_{}_{}_every_cation'.format(concs_valid[i], lbs_valid[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_valid[i].reshape(-1))
 
             for i in range(concs_test.shape[0]):
-                pts_local = pts + 'predictions/cation/local_pred_{}_{}_{}_{}_cation'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
+                pts_local = pts + 'predictions/every/local_pred_{}_{}_{}_{}_every_cation'.format(concs_test[i], lbs_test[i], n_split, run_id).replace('.', '-') + '.npy'
                 np.save(pts_local, local_preds_test[i].reshape(-1))
 
 
