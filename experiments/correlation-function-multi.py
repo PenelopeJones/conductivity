@@ -212,8 +212,8 @@ def main(args):
     non_zero = ncf_denom_ac != 0
     ncf_ac[non_zero] = np.divide(ncf_nom_ac[non_zero], ncf_denom_ac[non_zero])
 
-    print(ncf_aa)
-    print(ncf_ac)
+    print(np.round(1000*ncf_aa, decimals=1))
+    print(np.round(1000*ncf_ac, decimals=1))
 
     np.save(ptp + 'correlation_functions/220222/220222_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/220222/220222_scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
