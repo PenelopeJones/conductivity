@@ -121,6 +121,7 @@ def main(args):
     ptfc = '../../data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
     try:
         xa = np.load(ptfa, allow_pickle=True)
+        pdb.set_trace()
         #xc = np.load(ptfc, allow_pickle=True)
         skip_snaps = 1
     except:
