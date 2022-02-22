@@ -16,7 +16,25 @@ from utils.util import train_test_split, train_valid_split, VanillaNN
 
 import pdb
 
-#def correlation_functions(ks):
+def temporal_correlation_function(kas, kcs):
+    assert kas.shape == kcs.shape
+    print(kas.shape)
+    ks = np.vstack([kas, kcs])
+    print(ks.shape)
+    pdb.set_trace()
+
+    T = ks.shape[1] # number of snapshots
+    n = ks.shape[0] # number of particles
+    ss_mn = np.mean(ks, axis=0) # mean per snapshot
+
+    tcf = np.zeros(T)
+    for tau in range(0, T):
+        term1 = np.mean(np.multiply(ks[:, 0:(T-tau)], ks[:, tau:]))
+        term2 = np.mean(np.multiply(ss_mn[0:(T-tau)], ss_mn[tau:]))
+        tcf[tau] = term1 - term2
+    return tcf
+
+
 
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
@@ -239,7 +257,7 @@ def main(args):
     models = []
     # Load trained models in eval mode and also the scalers (both x and y)
     for n_split in range(n_splits):
-        save_scalers(n_split, ptd)
+        #save_scalers(n_split, ptd)
         mu_x = np.load(ptd + 'processed/mu_x_{}.npy'.format(n_split))
         std_x = np.load(ptd + 'processed/std_x_{}.npy'.format(n_split))
         mu_y = np.load(ptd + 'processed/mu_y_{}.npy'.format(n_split))
@@ -268,7 +286,7 @@ def main(args):
             preds_a = []
             preds_c = []
             for n_split in range(n_splits):
-                xas = torch.tensor((xa - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
+                xas = mu # apply appropriate scaling
                 xcs = torch.tensor((xc - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
 
                 for run_id in range(n_ensembles):
@@ -290,10 +308,12 @@ def main(args):
         except:
             print('Did not find File {}'.format(file_id))
 
-    kas = np.hstack(preds_a)
-    kcs = np.hstack(preds_c)
+    kas = np.hstack(kas)
+    kcs = np.hstack(kcs)
+    pdb.set_trace()
     kas = kas.reshape((-1, n_anions))
     kcs = kcs.reshape((-1, n_anions))
+    pdb.set_trace()
     print('Predicted total mean (Anion) {:.4f} (Cation) {:.4f}'.format(np.mean(kas), np.mean(kcs)))
     print(kas.shape)
     print(kcs.shape)
