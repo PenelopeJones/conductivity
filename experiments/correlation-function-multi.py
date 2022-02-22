@@ -212,6 +212,9 @@ def main(args):
     non_zero = ncf_denom_ac != 0
     ncf_ac[non_zero] = np.divide(ncf_nom_ac[non_zero], ncf_denom_ac[non_zero])
 
+    print(ncf_aa)
+    print(ncf_ac)
+
     np.save(ptp + 'correlation_functions/220222/220222_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/220222/220222_scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
     np.save(ptp + 'correlation_functions/220222/220222_scf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_ac)
