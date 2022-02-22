@@ -11,10 +11,13 @@ from sklearn.preprocessing import StandardScaler
 
 import MDAnalysis as mda
 
-from utils.util import train_test_split, train_valid_split
+from utils.util import train_test_split, train_valid_split, VanillaNN
 
 
 import pdb
+
+def correlation_functions(ks):
+
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
     u = mda.Universe(data_file, dcd_file)
