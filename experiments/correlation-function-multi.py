@@ -117,13 +117,12 @@ def main(args):
     print(n_snaps)
 
     # Check if can load the higher memory file
-    ptfa = '../../data/processed/X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
-    ptfc = '../../data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
-    xa = np.load(ptfa, allow_pickle=True)
-    pdb.set_trace()
+    ptfa = '../../' + 'data/processed/X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
+    ptfc = '../../' + 'data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
+
+
     try:
         xa = np.load(ptfa, allow_pickle=True)
-
         #xc = np.load(ptfc, allow_pickle=True)
         skip_snaps = 1
     except:
