@@ -14,7 +14,7 @@ def weighted_stats(means, stds):
     mean = var * np.sum(np.multiply(means, np.reciprocal(stds**2)))
     return mean, np.sqrt(var)
 
-def correlation_function(anions, cations, conductivities_a, conductivities_c, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
+def spatial_correlation_function(anions, cations, conductivities_a, conductivities_c, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     y_aa = np.zeros(x.shape[0])
     y_ac = np.zeros(x.shape[0])
@@ -71,10 +71,10 @@ def correlation_function(anions, cations, conductivities_a, conductivities_c, mi
 
     for j in range(x.shape[0]):
         selected = product[np.where(np.abs(distances - x[j]) < 0.5*bin_size)].reshape(-1)
-        y_cc[j] += selected.sum()
-        n_cc[j] += selected.shape[0]
+        y_aa[j] += selected.sum()
+        n_aa[j] += selected.shape[0]
 
-    return x, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc
+    return x, y_aa, n_aa, y_ac, n_ac
 
 
 def main(args):
@@ -110,14 +110,34 @@ def main(args):
     # Load ion positions
     anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
 
+    assert anion_positions.shape == cation_positions.shape
+    (n_snapshots, n_anions, _) = anion_positions.shape
+    n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
+
+    print(n_snaps)
+
+
+    # Check if can load the higher memory file
+    ptfa = '../../data/processed/X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
+    ptfc = '../../data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
+    try:
+        xa = np.load(ptfa, allow_pickle=True)
+        xc = np.load(ptfc, allow_pickle=True)
+        skip_snaps = 1
+    except:
+        print('Cannot load full file. Instead using smaller file.')
+        skip_snaps = n_snapshots // n_snaps
+
+    print(skip_snaps)
+
     # Load local conductivity predictions
     ptp = '../results/{}/'.format(experiment_name)
     preds_a = []
     preds_c = []
     for n_split in range(n_splits):
         for run_id in range(n_ensembles):
-            ptsa_local = ptp + 'predictions/local_pred_{}_{}_{}_{}'.format(conc, lb, n_split, run_id).replace('.', '-') + '.npy'
-            ptsc_local = ptp + 'predictions/cation_reverse/local_pred_{}_{}_{}_{}_cation_reverse'.format(conc, lb, n_split, run_id).replace('.', '-') + '.npy'
+            ptsa_local = ptp + 'predictions/every/local_pred_{}_{}_{}_{}_every_anion'.format(conc, lb, n_split, run_id).replace('.', '-') + '.npy'
+            ptsc_local = ptp + 'predictions/every/local_pred_{}_{}_{}_{}_every_cation'.format(conc, lb, n_split, run_id).replace('.', '-') + '.npy'
             pred_a = np.load(ptsa_local)
             preds_a.append(pred_a)
             pred_c = np.load(ptsc_local)
@@ -126,45 +146,34 @@ def main(args):
     preds_a = np.vstack(preds_a)
     preds_c = np.vstack(preds_c)
     preds_a_mn = np.mean(preds_a, axis=0) # Gives the mean conductivity predicted for each anion (across all models)
-    preds_a_std = np.std(preds_a, axis=0)
     preds_c_mn = np.mean(preds_c, axis=0) # Gives the mean conductivity predicted for each cation (across all models)
-    preds_c_std = np.std(preds_c, axis=0)
 
-    model_mns_a = np.mean(preds_a, axis=1) # Gives the mean conductivity predicted for the system (for each model)
-    sys_mn_a = np.mean(model_mns_a)
-    sys_std_a = np.std(model_mns_a)
-    model_mns_c = np.mean(preds_c, axis=1) # Gives the mean conductivity predicted for the system (for each model)
-    sys_mn_c = np.mean(model_mns_c)
-    sys_std_c = np.std(model_mns_c)
-
-    assert anion_positions.shape == cation_positions.shape
-    (n_snapshots, n_anions, _) = anion_positions.shape
-    n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
-    skip_snaps = n_snapshots // n_snaps
-    print(n_snaps)
-    print(skip_snaps)
+    sys_mn_a = np.mean(preds_a)
+    sys_mn_c = np.mean(preds_c)
 
     if not os.path.exists(ptp):
         os.makedirs(ptp)
 
-    if not os.path.exists(ptp + 'snapshots'):
-        os.makedirs(ptp + 'snapshots')
-
     if not os.path.exists(ptp + 'correlation_functions'):
         os.makedirs(ptp + 'correlation_functions')
+
+    if not os.path.exists(ptp + 'correlation_functions/220222/'):
+        os.makedirs(ptp + 'correlation_functions/220222/')
 
     idx = 0
 
     nums = []
-
     means = []
     stds = []
 
-    for snapshot_id in range(0, n_snapshots, max(1, skip_snaps)):
+    n_snaps = skip_snaps * preds_a_mn.shape[0] // n_anions
+    print(n_snaps)
+    print(n_snapshots)
+
+    for snapshot_id in range(0, n_snaps + 1, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
-
         conductivities_a_mn = preds_a_mn[idx:(idx+anions.shape[0])]
         conductivities_c_mn = preds_c_mn[idx:(idx+cations.shape[0])]
         snapshot_a_mn = np.mean(conductivities_a_mn)
@@ -175,7 +184,7 @@ def main(args):
         idx += anions.shape[0]
 
         if snapshot_id == 0:
-            x, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a_mn,
+            x, y_aa, n_aa, y_ac, n_ac = spatial_correlation_function(anions, cations, conductivities_a_mn,
                                                                          conductivities_c_mn, min_r_value=min_r_value,
                                                                          max_r_value=max_r_value, bin_size=bin_size,
                                                                          box_length=box_length)
@@ -183,12 +192,10 @@ def main(args):
             ncf_denom_aa = n_aa
             ncf_nom_ac = y_ac
             ncf_denom_ac = n_ac
-            ncf_nom_cc = y_cc
-            ncf_denom_cc = n_cc
 
 
         else:
-            _, y_aa, n_aa, y_ac, n_ac, y_cc, n_cc = correlation_function(anions, cations, conductivities_a_mn,
+            _, y_aa, n_aa, y_ac, n_ac = spatial_correlation_function(anions, cations, conductivities_a_mn,
                                                                          conductivities_c_mn, min_r_value=min_r_value,
                                                                          max_r_value=max_r_value, bin_size=bin_size,
                                                                          box_length=box_length)
@@ -196,12 +203,9 @@ def main(args):
             ncf_denom_aa += n_aa
             ncf_nom_ac += y_ac
             ncf_denom_ac += n_ac
-            ncf_nom_cc += y_cc
-            ncf_denom_cc += n_cc
 
     ncf_aa = np.zeros_like(y_aa)
     ncf_ac = np.zeros_like(y_ac)
-    ncf_cc = np.zeros_like(y_cc)
 
     non_zero = ncf_denom_aa != 0
     ncf_aa[non_zero] = np.divide(ncf_nom_aa[non_zero], ncf_denom_aa[non_zero])
@@ -209,13 +213,9 @@ def main(args):
     non_zero = ncf_denom_ac != 0
     ncf_ac[non_zero] = np.divide(ncf_nom_ac[non_zero], ncf_denom_ac[non_zero])
 
-    non_zero = ncf_denom_cc != 0
-    ncf_cc[non_zero] = np.divide(ncf_nom_cc[non_zero], ncf_denom_cc[non_zero])
-
-    np.save(ptp + 'correlation_functions/220218/220218_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
-    np.save(ptp + 'correlation_functions/220218/220218_ncf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
-    np.save(ptp + 'correlation_functions/220218/220218_ncf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_ac)
-    np.save(ptp + 'correlation_functions/220218/220218_ncf_cc_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_cc)
+    np.save(ptp + 'correlation_functions/220222/220222_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
+    np.save(ptp + 'correlation_functions/220222/220222_scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
+    np.save(ptp + 'correlation_functions/220222/220222_scf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_ac)
 
     print('Done.')
 
