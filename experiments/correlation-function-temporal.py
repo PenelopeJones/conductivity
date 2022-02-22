@@ -21,7 +21,6 @@ def temporal_correlation_function(kas, kcs):
     print(kas.shape)
     ks = np.vstack([kas, kcs])
     print(ks.shape)
-    pdb.set_trace()
 
     T = ks.shape[0] # number of snapshots
     n = ks.shape[1] # number of particles
@@ -32,7 +31,7 @@ def temporal_correlation_function(kas, kcs):
         term1 = np.mean(np.multiply(ks[0:(T-tau), :], ks[tau:, :]))
         term2 = np.mean(np.multiply(ss_mn[0:(T-tau)], ss_mn[tau:]))
         tcf[tau] = term1 - term2
-    return tcf
+    return ss_mn, tcf
 
 
 
@@ -273,7 +272,6 @@ def main(args):
                                                                                          run_id)))
             model.eval()
             models.append(model)
-    pdb.set_trace()
 
     kas = []
     kcs = []
@@ -304,24 +302,29 @@ def main(args):
 
         except:
             print('Did not find File {}'.format(file_id))
-    pdb.set_trace()
+
     kas = np.hstack(kas)
     kcs = np.hstack(kcs)
-    pdb.set_trace()
+
     kas = kas.reshape((-1, n_anions))
     kcs = kcs.reshape((-1, n_anions))
-    pdb.set_trace()
+
     print('Predicted total mean (Anion) {:.4f} (Cation) {:.4f}'.format(np.mean(kas), np.mean(kcs)))
     print(kas.shape)
     print(kcs.shape)
 
-    pdb.set_trace()
     if not os.path.exists(pts + 'predictions/full_trajectories/'):
         os.makedirs(pts + 'predictions/full_trajectories/')
 
     np.save(pts + 'predictions/full_trajectories/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
     np.save(pts + 'predictions/full_trajectories/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
-    pdb.set_trace()
+
+    if not os.path.exists(pts + 'predictions/correlation_functions/temporal/'):
+        os.makedirs(pts + 'predictions/correlation_functions/temporal/')
+
+    ss_mn, tcf = temporal_correlation_function(kas, kcs)
+    np.save(pts + 'predictions/correlation_functions/temporal/ss_mn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ss_mn)
+    np.save(pts + 'predictions/correlation_functions/temporal/tcf_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', tcf)
 
 
 if __name__ == "__main__":
