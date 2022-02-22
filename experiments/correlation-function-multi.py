@@ -179,9 +179,10 @@ def main(args):
         conductivities_a_mn = preds_a_mn[idx:(idx+anions.shape[0])]
         conductivities_c_mn = preds_c_mn[idx:(idx+cations.shape[0])]
         snapshot_a_mn = np.mean(conductivities_a_mn)
+        snapshot_c_mn = np.mean(conductivities_c_mn)
         mns.append(snapshot_a_mn)
         mns.append(snapshot_c_mn)
-        snapshot_c_mn = np.mean(conductivities_c_mn)
+
 
         if ((snapshot_a_mn < 0) or (snapshot_c_mn < 0)):
             print('Snapshot {} Conductivity {:.3f} {:.3f} Average conductivity {:.3f}'.format(snapshot_id, snapshot_a_mn, snapshot_c_mn, np.mean(np.hstack(mns))))
