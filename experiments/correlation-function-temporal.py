@@ -23,13 +23,13 @@ def temporal_correlation_function(kas, kcs):
     print(ks.shape)
     pdb.set_trace()
 
-    T = ks.shape[1] # number of snapshots
-    n = ks.shape[0] # number of particles
-    ss_mn = np.mean(ks, axis=0) # mean per snapshot
+    T = ks.shape[0] # number of snapshots
+    n = ks.shape[1] # number of particles
+    ss_mn = np.mean(ks, axis=1) # mean per snapshot
 
     tcf = np.zeros(T)
     for tau in range(0, T):
-        term1 = np.mean(np.multiply(ks[:, 0:(T-tau)], ks[:, tau:]))
+        term1 = np.mean(np.multiply(ks[0:(T-tau), :], ks[tau:, :]))
         term2 = np.mean(np.multiply(ss_mn[0:(T-tau)], ss_mn[tau:]))
         tcf[tau] = term1 - term2
     return tcf
@@ -298,7 +298,7 @@ def main(args):
             preds_c = np.mean(preds_c, axis=0) # Gives the mean conductivity predicted for each cation (across all models)
             sys_mn_a = np.mean(preds_a)
             sys_mn_c = np.mean(preds_c)
-            print('File ID Mean (Anion) {:.3f} Mean (Cation) {:.3f}'.format(sys_mn_a, sys_mn_c))
+            print('File ID {} Mean (Anion) {:.3f} Mean (Cation) {:.3f}'.format(file_id, sys_mn_a, sys_mn_c))
             kas.append(preds_a)
             kcs.append(preds_c)
 
