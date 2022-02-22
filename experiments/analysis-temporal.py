@@ -270,7 +270,7 @@ def main(args):
     kcs = []
     for file_id in range(file_ids):
         try:
-            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             preds_a = []
             preds_c = []
