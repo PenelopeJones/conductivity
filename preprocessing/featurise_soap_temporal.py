@@ -15,7 +15,11 @@ import pdb
 
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
     dcd_file = '{}full_trajectories/conc{}_lb{}.dcd'.format(ptd, conc, lb)
-    data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
+    if conc == 0.001:
+        ptdf = ptd + '0001/'
+    else:
+        ptdf = ptd + '{}/'.format(conc)
+    data_file = '{}initial_config_conc{}.gsd'.format(ptdf, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
@@ -28,10 +32,7 @@ def main(args):
 
     conc = args.conc
     lb = args.lb
-    if conc == 0.001:
-        ptd = args.ptd + '0001/'
-    else:
-        ptd = args.ptd + '{}/'.format(conc)
+
     pts = args.pts
     nt = 25000
 
