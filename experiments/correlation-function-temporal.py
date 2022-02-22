@@ -3,8 +3,6 @@ import sys
 sys.path.append('../../')
 import argparse
 
-import pdb
-
 import numpy as np
 import torch
 from sklearn.preprocessing import StandardScaler
@@ -14,12 +12,10 @@ import MDAnalysis as mda
 from utils.util import train_test_split, train_valid_split, VanillaNN
 
 
-import pdb
-
 def temporal_correlation_function(kas, kcs):
     assert kas.shape == kcs.shape
     print(kas.shape)
-    ks = np.vstack([kas, kcs])
+    ks = np.hstack([kas, kcs])
     print(ks.shape)
 
     T = ks.shape[0] # number of snapshots
@@ -32,9 +28,6 @@ def temporal_correlation_function(kas, kcs):
         term2 = np.mean(np.multiply(ss_mn[0:(T-tau)], ss_mn[tau:]))
         tcf[tau] = term1 - term2
     return ss_mn, tcf
-
-
-
 
 def create_mda(dcd_file, data_file): # loads trajectory with unwrapped coordinates
     u = mda.Universe(data_file, dcd_file)
@@ -277,7 +270,7 @@ def main(args):
     kcs = []
     for file_id in range(file_ids):
         try:
-            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             preds_a = []
             preds_c = []
