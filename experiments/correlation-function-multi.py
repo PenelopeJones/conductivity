@@ -121,7 +121,7 @@ def main(args):
     ptfc = '../../data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
     try:
         xa = np.load(ptfa, allow_pickle=True)
-        xc = np.load(ptfc, allow_pickle=True)
+        #xc = np.load(ptfc, allow_pickle=True)
         skip_snaps = 1
     except:
         print('Cannot load full file. Instead using smaller file.')
@@ -169,7 +169,7 @@ def main(args):
     print(n_snaps)
     print(n_snapshots)
 
-    for snapshot_id in range(0, n_snaps + 1, max(1, skip_snaps)):
+    for snapshot_id in range(0, n_snaps, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
         cations = cation_positions[snapshot_id, :, :]
