@@ -209,9 +209,6 @@ def main(args):
     n_splits = args.n_splits
     n_ensembles = args.n_ensembles
     hidden_dims = args.hidden_dims
-    min_r_value = args.min_r_value
-    max_r_value = args.max_r_value
-    bin_size = args.bin_size
 
     # Load parameter lists
     concs = np.load('../../data/concentrations.npy')
@@ -227,90 +224,12 @@ def main(args):
     k_avg_err = y_err[np.where((concs == conc) & (lbs == lb))][0]
     print('Concentration {}\t lB {} True k = {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_avg_err))
 
-    # Load ion positions
-    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd+'md-trajectories/')
-
-    assert anion_positions.shape == cation_positions.shape
-    (n_snapshots, n_anions, _) = anion_positions.shape
-    n_cations = cation_positions.shape[1]
-
-    nt = n_snapshots * n_anions
-    file_ids = nt // 25000 + 1
-
-    ka = []
-    kc = []
-
-    mus_x = []
-    stds_x = []
-    mus_y = []
-    stds_y = []
-
-    models = []
-    # Load trained models in eval mode and also the scalers (both x and y)
-    for n_split in range(n_splits):
-        #save_scalers(n_split, ptd)
-        mu_x = np.load(ptd + 'processed/mu_x_{}.npy'.format(n_split))
-        std_x = np.load(ptd + 'processed/std_x_{}.npy'.format(n_split))
-        mu_y = np.load(ptd + 'processed/mu_y_{}.npy'.format(n_split))
-        std_y = np.load(ptd + 'processed/std_y_{}.npy'.format(n_split))
-        mus_x.append(mu_x)
-        stds_x.append(std_x)
-        mus_y.append(mu_y)
-        stds_y.append(std_y)
-
-        for run_id in range(n_ensembles):
-            # Load saved models
-            model = VanillaNN(in_dim=mu_x.shape[0], out_dim=1, hidden_dims=hidden_dims)
-            model.load_state_dict(torch.load(pts + 'models/' + 'model{}{}_{}.pkl'.format(experiment_name, n_split,
-                                                                                         run_id)))
-            model.eval()
-            models.append(model)
-
-    kas = []
-    kcs = []
-    for file_id in range(file_ids):
-        try:
-            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
-            xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
-            preds_a = []
-            preds_c = []
-            for n_split in range(n_splits):
-                xas = torch.tensor((xa - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
-                xcs = torch.tensor((xc - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
-                for run_id in range(n_ensembles):
-                    pred_a = models[n_ensembles*n_split+run_id].forward(xas).detach().numpy()*stds_y[n_split] + mus_y[n_split]
-                    preds_a.append(pred_a.reshape(-1))
-                    pred_c = models[n_ensembles*n_split+run_id].forward(xcs).detach().numpy()*stds_y[n_split] + mus_y[n_split]
-                    preds_c.append(pred_c.reshape(-1))
-
-            preds_a = np.vstack(preds_a)
-            preds_c = np.vstack(preds_c)
-            preds_a = np.mean(preds_a, axis=0) # Gives the mean conductivity predicted for each anion (across all models)
-            preds_c = np.mean(preds_c, axis=0) # Gives the mean conductivity predicted for each cation (across all models)
-            sys_mn_a = np.mean(preds_a)
-            sys_mn_c = np.mean(preds_c)
-            print('File ID {} Mean (Anion) {:.3f} Mean (Cation) {:.3f}'.format(file_id, sys_mn_a, sys_mn_c))
-            kas.append(preds_a)
-            kcs.append(preds_c)
-
-        except:
-            print('Did not find File {}'.format(file_id))
-
-    kas = np.hstack(kas)
-    kcs = np.hstack(kcs)
-
-    kas = kas.reshape((-1, n_anions))
-    kcs = kcs.reshape((-1, n_anions))
+    kas = np.load(pts + 'predictions/full_trajectories/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy')
+    kcs = np.load(pts + 'predictions/full_trajectories/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy')
 
     print('Predicted total mean (Anion) {:.4f} (Cation) {:.4f}'.format(np.mean(kas), np.mean(kcs)))
     print(kas.shape)
     print(kcs.shape)
-
-    if not os.path.exists(pts + 'predictions/full_trajectories/'):
-        os.makedirs(pts + 'predictions/full_trajectories/')
-
-    np.save(pts + 'predictions/full_trajectories/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
-    np.save(pts + 'predictions/full_trajectories/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
 
     if not os.path.exists(pts + 'predictions/correlation_functions/temporal/'):
         os.makedirs(pts + 'predictions/correlation_functions/temporal/')
