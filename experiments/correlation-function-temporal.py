@@ -241,7 +241,6 @@ def main(args):
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
-    pdb.set_trace()
 
     nt = n_snapshots * n_anions
     file_ids = nt // 25000 + 1
@@ -282,11 +281,11 @@ def main(args):
         try:
             xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
-
+            pdb.set_trace()
             preds_a = []
             preds_c = []
             for n_split in range(n_splits):
-                xas = mu # apply appropriate scaling
+                xas = torch.tensor((xa - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
                 xcs = torch.tensor((xc - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
 
                 for run_id in range(n_ensembles):
@@ -294,9 +293,11 @@ def main(args):
                     preds_a.append(pred_a.reshape(-1))
                     pred_c = models[n_ensembles*n_split+run_id].forward(xcs).detach().numpy()*stds_y[n_split] + mus_y[n_split]
                     preds_c.append(pred_c.reshape(-1))
+                pdb.set_trace()
 
             preds_a = np.vstack(preds_a)
             preds_c = np.vstack(preds_c)
+            pdb.set_trace()
             preds_a = np.mean(preds_a, axis=0) # Gives the mean conductivity predicted for each anion (across all models)
             preds_c = np.mean(preds_c, axis=0) # Gives the mean conductivity predicted for each cation (across all models)
             sys_mn_a = np.mean(preds_a)
