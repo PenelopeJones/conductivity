@@ -20,15 +20,10 @@ def check_files_exist(dcd_file, data_file):
         sys.exit()
     return
 
-
-def define_atom_types(u, dumbbells):
+def define_atom_types(u):
     # sort atoms into type of molecule
-    if dumbbells:
-        anions = u.select_atoms("type Anion or type Anion_Pair")
-        cations = u.select_atoms("type Cation or type Cation_Pair")
-    else:
-        anions = u.select_atoms("type Anion")
-        cations = u.select_atoms("type Cation")
+    anions = u.select_atoms("type Anion")
+    cations = u.select_atoms("type Cation")
     solvent = u.select_atoms("type Solvent")
     return cations, anions, solvent
 
@@ -41,23 +36,19 @@ def create_position_arrays(u, anions, cations, solvent):
     cation_positions = np.zeros((n_times, len(cations), 3))
     solvent_positions = np.zeros((n_times, len(solvent), 3))
     for ts in u.trajectory:
-        anion_positions[time, :, :] = anions.positions - u.atoms.center_of_mass()
-        cation_positions[time, :, :] = cations.positions - u.atoms.center_of_mass()
-        solvent_positions[time, :, :] = solvent.positions - u.atoms.center_of_mass()
+        anion_positions[time, :, :] = anions.positions - u.atoms.center_of_mass(pbc=True)
+        cation_positions[time, :, :] = cations.positions - u.atoms.center_of_mass(pbc=True)
+        solvent_positions[time, :, :] = solvent.positions - u.atoms.center_of_mass(pbc=True)
         time += 1
     return anion_positions, cation_positions, solvent_positions
 
-def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/', dumbbells=False):
+def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
     dcd_file = '{}conc{}_lb{}.dcd'.format(ptd, conc, lb)
-    if dumbbells:
-        data_file = '{}initial_config_dumbbells_conc{}.gsd'.format(ptd, conc)
-    else:
-        data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
+    data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
     box_length = u.dimensions[0] # box length (use to wrap coordinates with periodic boundary conditions)
-    cations, anions, solvent = define_atom_types(u, dumbbells)
-    anion_positions, cation_positions, solvent_positions = (
-                 create_position_arrays(u, anions, cations, solvent))
+    cations, anions, solvent = define_atom_types(u)
+    anion_positions, cation_positions, solvent_positions = (create_position_arrays(u, anions, cations, solvent))
 
     return anion_positions, cation_positions, solvent_positions, box_length
