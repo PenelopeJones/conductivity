@@ -32,7 +32,7 @@ def main(args):
 
     conc = args.conc
     lb = args.lb
-
+    ptd = args.ptd
     pts = args.pts
     nt = 25000
 
