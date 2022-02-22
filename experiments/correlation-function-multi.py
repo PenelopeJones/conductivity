@@ -120,7 +120,6 @@ def main(args):
     ptfa = '../../' + 'data/processed/X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
     ptfc = '../../' + 'data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
 
-
     try:
         xa = np.load(ptfa, allow_pickle=True)
         #xc = np.load(ptfc, allow_pickle=True)
@@ -171,6 +170,8 @@ def main(args):
     print(n_snaps)
     print(n_snapshots)
 
+    mns = []
+
     for snapshot_id in range(0, n_snaps, max(1, skip_snaps)):
         # Select ion positions at a given snapshot
         anions = anion_positions[snapshot_id, :, :]
@@ -178,10 +179,12 @@ def main(args):
         conductivities_a_mn = preds_a_mn[idx:(idx+anions.shape[0])]
         conductivities_c_mn = preds_c_mn[idx:(idx+cations.shape[0])]
         snapshot_a_mn = np.mean(conductivities_a_mn)
+        mns.append(snapshot_a_mn)
+        mns.append(snapshot_c_mn)
         snapshot_c_mn = np.mean(conductivities_c_mn)
 
         if ((snapshot_a_mn < 0) or (snapshot_c_mn < 0)):
-            print('Snapshot {} Conductivity {:.3f} {:.3f}'.format(snapshot_id, snapshot_a_mn, snapshot_c_mn))
+            print('Snapshot {} Conductivity {:.3f} {:.3f} Average conductivity {:.3f}'.format(snapshot_id, snapshot_a_mn, snapshot_c_mn, np.mean(np.hstack(mns))))
         idx += anions.shape[0]
 
         if snapshot_id == 0:
@@ -216,6 +219,7 @@ def main(args):
 
     print(np.round(1000*ncf_aa, decimals=1))
     print(np.round(1000*ncf_ac, decimals=1))
+    print(np.mean(np.hstack(mns)))
 
     np.save(ptp + 'correlation_functions/220222/220222_bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/220222/220222_scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ncf_aa)
