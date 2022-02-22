@@ -211,11 +211,12 @@ def main(args):
     print('Concentration {}\t lB {} True k = {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_avg_err))
 
     # Load ion positions
-    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
+    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd+'md-trajectories/')
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
+    pdb.set_trace()
 
     nt = n_snapshots * n_anions
     file_ids = nt // 25000 + 1
@@ -247,7 +248,9 @@ def main(args):
             model.load_state_dict(torch.load(pts + 'models/' + 'model{}{}_{}.pkl'.format(experiment_name, n_split,
                                                                                          run_id)))
             model.eval()
-
+            models.append(model)
+    pdb.set_trace()
+    
     kas = []
     kcs = []
     for file_id in range(file_ids):
