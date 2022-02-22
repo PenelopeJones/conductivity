@@ -6,6 +6,8 @@ import argparse
 import pdb
 
 import numpy as np
+import torch
+from sklearn.preprocessing import StandardScaler
 
 import MDAnalysis as mda
 
@@ -263,8 +265,8 @@ def main(args):
             preds_a = []
             preds_c = []
             for n_split in range(n_splits):
-                xas = (xa - mus_x[n_split]) / stds_x[n_split] # apply appropriate scaling
-                xcs = (xc - mus_x[n_split]) / stds_x[n_split] # apply appropriate scaling
+                xas = torch.tensor((xa - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
+                xcs = torch.tensor((xc - mus_x[n_split]) / stds_x[n_split], dtype=torch.float32) # apply appropriate scaling
 
                 for run_id in range(n_ensembles):
                     pred_a = models[n_ensembles*n_split+run_id].forward(xas).detach().numpy()*stds_y[n_split] + mus_y[n_split]
