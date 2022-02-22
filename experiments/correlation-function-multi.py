@@ -116,7 +116,6 @@ def main(args):
 
     print(n_snaps)
 
-
     # Check if can load the higher memory file
     ptfa = '../../data/processed/X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
     ptfc = '../../data/processed/X_{}_{}_soap_every_cation'.format(conc, lb).replace('.', '-') + '.npy'
