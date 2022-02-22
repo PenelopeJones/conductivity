@@ -9,6 +9,8 @@ import numpy as np
 
 import MDAnalysis as mda
 
+from utils.util import train_test_split, train_valid_split
+
 
 import pdb
 
@@ -250,7 +252,7 @@ def main(args):
             model.eval()
             models.append(model)
     pdb.set_trace()
-    
+
     kas = []
     kcs = []
     for file_id in range(file_ids):
