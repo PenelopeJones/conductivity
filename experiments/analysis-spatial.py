@@ -147,7 +147,10 @@ def main(args):
     conc = args.conc
     lb = args.lb
     experiment_name = args.experiment_name
-    ptd = args.ptd
+    if conc == 0.001:
+        ptd = args.ptd + '0001/'
+    else:
+        ptd = args.ptd + '{}/'.format(conc)
 
     pts = '../results/{}/'.format(experiment_name)
 
@@ -194,10 +197,10 @@ def main(args):
     # Load trained models in eval mode and also the scalers (both x and y)
     for n_split in range(n_splits):
         #save_scalers(n_split, ptd)
-        mu_x = np.load(ptd + 'processed/mu_x_{}.npy'.format(n_split))
-        std_x = np.load(ptd + 'processed/std_x_{}.npy'.format(n_split))
-        mu_y = np.load(ptd + 'processed/mu_y_{}.npy'.format(n_split))
-        std_y = np.load(ptd + 'processed/std_y_{}.npy'.format(n_split))
+        mu_x = np.load(args.ptd + 'processed/mu_x_{}.npy'.format(n_split))
+        std_x = np.load(args.ptd + 'processed/std_x_{}.npy'.format(n_split))
+        mu_y = np.load(args.ptd + 'processed/mu_y_{}.npy'.format(n_split))
+        std_y = np.load(args.ptd + 'processed/std_y_{}.npy'.format(n_split))
         mus_x.append(mu_x)
         stds_x.append(std_x)
         mus_y.append(mu_y)
@@ -215,8 +218,8 @@ def main(args):
     kcs = []
     for file_id in range(file_ids):
         try:
-            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_spatial_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
-            xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_spatial_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xa = np.load(args.ptd + 'processed/X_{}_{}_soap_anion_spatial_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xc = np.load(args.ptd + 'processed/X_{}_{}_soap_cation_spatial_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             preds_a = []
             preds_c = []
             for n_split in range(n_splits):
@@ -263,6 +266,9 @@ def main(args):
     x, scf_aa, scf_ac = spatial_correlation_function(anion_positions, cation_positions, kas, kcs,
                                                      min_r_value=min_r_value, max_r_value=max_r_value,
                                                      bin_size=bin_size,box_length=box_length)
+    print(x)
+    print(np.round(100*scf_aa, decimals=1))
+    print(np.round(100*scf_ac, decimals=1))
 
     np.save(ptp + 'correlation_functions/spatial/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(ptp + 'correlation_functions/spatial/scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa)
