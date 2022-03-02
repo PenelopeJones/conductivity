@@ -30,37 +30,38 @@ def main(args):
     lmax = 5
     sparse = False
 
-    ptf = pts + 'X_{}_{}_soap_every_anion'.format(conc, lb).replace('.', '-') + '.npy'
-
-    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd)
+    anion_positions, cation_positions, _, box_length = mda_to_numpy(conc, lb, ptd)
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
     n_cations = cation_positions.shape[1]
-    n_solvents = solvent_positions.shape[1]
+
+    nt = n_snapshots * n_anions
+    n_splits = nt // 25000 + 1
+
     print(n_cations)
 
     cat_sym = 'Na'
     an_sym = 'Cl'
-    #cat_sym = 'Li'
-    #an_sym = 'Br'
     species = [an_sym, cat_sym]
     symbols = [an_sym]*n_anions + [cat_sym]*n_cations
     soap_generator = SOAP(species=species, periodic=True,
                           rcut=rcut, nmax=nmax, lmax=lmax,
                           sparse=sparse)
 
-    x = []
-
-    n_snaps = int(nt / n_anions) # number of snapshots needed to get dataset size > nt
-    skip_snaps = n_snapshots // n_snaps
-    print(n_snaps)
-    print(skip_snaps)
-
     if not os.path.exists(args.pts):
         os.makedirs(args.pts)
 
     print('Concentration {}\t lB {}'.format(conc, lb))
+
+    split = 0
+
+    ptfa = pts + 'X_{}_{}_soap_anion_spatial_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+    ptfc = pts + 'X_{}_{}_soap_cation_spatial_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+    x_cations = []
+    x_anions = []
+
+    count = 0
 
     i = 0
 
@@ -76,12 +77,36 @@ def main(args):
                        cell=[box_length, box_length, box_length],
                        pbc=True)
         soap = soap_generator.create(system, positions=list(range(0, n_anions)))
-        x.append(soap)
+        x_anions.append(soap)
 
-        np.save(ptf, np.vstack(x))
-        if i % args.print_freq == 0:
-            print('Snapshot {}\t Time: {:.1f}'.format(i, (time.time() - t0)))
-        i+=1
+        # Select ion positions at a given snapshot
+        anions = cation_positions[snapshot_id, :, :]
+        cations = anion_positions[snapshot_id, :, :]
+        positions = np.vstack([anions, cations])
+        system = Atoms(symbols=symbols, positions=positions,
+                       cell=[box_length, box_length, box_length],
+                       pbc=True)
+        soap = soap_generator.create(system, positions=list(range(0, n_anions)))
+        x_cations.append(soap)
+
+        count += n_anions
+
+        if count >= 25000:
+            np.save(ptfa, np.vstack(x_anions))
+            np.save(ptfc, np.vstack(x_cations))
+            x_anions = []
+            x_cations = []
+
+            count = 0
+            split += 1
+            ptfa = pts + 'X_{}_{}_soap_anion_spatial_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+            ptfc = pts + 'X_{}_{}_soap_cation_spatial_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+
+            print('Saved at snapshot {}\t Split {} Time: {:.1f}'.format(snapshot_id, split, (time.time() - t0)))
+
+    print('All snapshots processed.')
+    np.save(ptfa, np.vstack(x_anions))
+    np.save(ptfc, np.vstack(x_cations))
     print('Done.')
 
 if __name__ == "__main__":
