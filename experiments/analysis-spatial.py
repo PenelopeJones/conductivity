@@ -147,10 +147,11 @@ def main(args):
     conc = args.conc
     lb = args.lb
     experiment_name = args.experiment_name
+    ptd = args.ptd
     if conc == 0.001:
-        ptd = args.ptd + '0001/'
+        ptt = args.ptd + 'md-trajectories/' + '0001/'
     else:
-        ptd = args.ptd + '{}/'.format(conc)
+        ptt = args.ptd + 'md-trajectories/' + '{}/'.format(conc)
 
     pts = '../results/{}/'.format(experiment_name)
 
@@ -176,7 +177,7 @@ def main(args):
     print('Concentration {}\t lB {} True k = {:.4f}+-{:.4f}'.format(conc, lb, k_avg, k_avg_err))
 
     # Load ion positions
-    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptd+'md-trajectories/')
+    anion_positions, cation_positions, solvent_positions, box_length = mda_to_numpy(conc, lb, ptt)
 
     assert anion_positions.shape == cation_positions.shape
     (n_snapshots, n_anions, _) = anion_positions.shape
