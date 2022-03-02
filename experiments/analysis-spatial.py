@@ -154,7 +154,7 @@ def main(args):
     else:
         ptt = args.ptd + 'md-trajectories/' + '{}/'.format(conc)
 
-    ptp = '../results/{}/'.format(experiment_name)
+    pts = '../results/{}/'.format(experiment_name)
 
     n_splits = args.n_splits
     n_ensembles = args.n_ensembles
@@ -272,9 +272,9 @@ def main(args):
     print(np.round(100*scf_aa, decimals=1))
     print(np.round(100*scf_ac, decimals=1))
 
-    np.save(ptp + 'correlation_functions/spatial/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
-    np.save(ptp + 'correlation_functions/spatial/scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa)
-    np.save(ptp + 'correlation_functions/spatial/scf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac)
+    np.save(pts + 'correlation_functions/spatial/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
+    np.save(pts + 'correlation_functions/spatial/scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa)
+    np.save(pts + 'correlation_functions/spatial/scf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac)
 
 
 if __name__ == "__main__":
