@@ -71,10 +71,10 @@ def spatial_correlation_function(anion_positions, cation_positions, kas, kcs, mi
             selected_cc = product_cc[np.where(np.abs(distances_cc - x[j]) < 0.5*bin_size)].reshape(-1)
 
             y_aa[j] += selected_aa.sum()
-            n_aa[j] += selected_aa.sum()
+            n_aa[j] += selected_aa.shape[0]
             y_ac[j] += selected_ac.sum()
             n_ac[j] += selected_ac.shape[0]
-            y_aa[j] += selected_cc.shape[0]
+            y_aa[j] += selected_cc.sum()
             n_aa[j] += selected_cc.shape[0]
 
     scf_aa = np.zeros_like(y_aa)
@@ -262,8 +262,8 @@ def main(args):
     np.save(pts + 'predictions/spatial/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
     np.save(pts + 'predictions/spatial/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
 
-    if not os.path.exists(pts + 'predictions/correlation_functions/spatial/'):
-        os.makedirs(pts + 'predictions/correlation_functions/spatial/')
+    if not os.path.exists(pts + 'correlation_functions/spatial/'):
+        os.makedirs(pts + 'correlation_functions/spatial/')
 
     x, scf_aa, scf_ac = spatial_correlation_function(anion_positions, cation_positions, kas, kcs,
                                                      min_r_value=min_r_value, max_r_value=max_r_value,
