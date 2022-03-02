@@ -15,10 +15,11 @@ from preprocessing.utils.mda_util import mda_to_numpy
 
 def spatial_correlation_function(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     # anions = [n_snapshots, n_anions, 3]
+    x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
     assert kas.shape == kcs.shape # [n_snapshots, n_anions]
     print(kas.shape)
-    T = ks.shape[0] # number of snapshots
-    n = ks.shape[1] # number of anions
+    T = kas.shape[0] # number of snapshots
+    n = kas.shape[1] # number of anions
 
     y_aa = np.zeros(x.shape[0])
     y_ac = np.zeros(x.shape[0])
