@@ -259,8 +259,8 @@ def main(args):
     if not os.path.exists(pts + 'predictions/spatial/'):
         os.makedirs(pts + 'predictions/spatial/')
 
-    np.save(pts + 'predictions/spatial/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
-    np.save(pts + 'predictions/spatial/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
+    #np.save(pts + 'predictions/spatial/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
+    #np.save(pts + 'predictions/spatial/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
 
     if not os.path.exists(pts + 'correlation_functions/spatial/'):
         os.makedirs(pts + 'correlation_functions/spatial/')
