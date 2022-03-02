@@ -15,7 +15,7 @@ from preprocessing.utils.mda_util import mda_to_numpy
 
 def spatial_correlation_function(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     # anions = [n_snapshots, n_anions, 3]
-    x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
+
     assert kas.shape == kcs.shape # [n_snapshots, n_anions]
     print(kas.shape)
     T = kas.shape[0] # number of snapshots
@@ -73,9 +73,9 @@ def spatial_correlation_function(anion_positions, cation_positions, kas, kcs, mi
             y_aa[j] += selected_aa.sum()
             n_aa[j] += selected_aa.sum()
             y_ac[j] += selected_ac.sum()
-            n_ac[j] += selected_ac.sum()
-            y_aa[j] += selected_cc.sum()
-            n_aa[j] += selected_cc.sum()
+            n_ac[j] += selected_ac.shape[0]
+            y_aa[j] += selected_cc.shape[0]
+            n_aa[j] += selected_cc.shape[0]
 
     scf_aa = np.zeros_like(y_aa)
     scf_ac = np.zeros_like(y_ac)
@@ -154,7 +154,7 @@ def main(args):
     else:
         ptt = args.ptd + 'md-trajectories/' + '{}/'.format(conc)
 
-    pts = '../results/{}/'.format(experiment_name)
+    ptp = '../results/{}/'.format(experiment_name)
 
     n_splits = args.n_splits
     n_ensembles = args.n_ensembles
