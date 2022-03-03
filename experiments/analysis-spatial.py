@@ -58,13 +58,23 @@ def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_
 
         anions_p = anions[np.where(kas_ss>=0), :]
         anions_n = anions[np.where(kas_ss<0), :]
-        cations_p = anions[np.where(kcs_ss>=0), :]
-        cations_n = anions[np.where(kcs_ss<0), :]
+        cations_p = cations[np.where(kcs_ss>=0), :]
+        cations_n = cations[np.where(kcs_ss<0), :]
 
         mn_a_p = np.mean(kas_ss_p)
         mn_a_n = np.mean(kas_ss_n)
         mn_c_p = np.mean(kcs_ss_p)
         mn_c_n = np.mean(kcs_ss_n)
+
+        print(anions_p.shape)
+        print(cations_p.shape)
+        print(anions_n.shape)
+        print(cations_n.shape)
+        print(kas_ss_p.shape)
+        print(kcs_ss_p.shape)
+        print(kas_ss_n.shape)
+        print(kcs_ss_n.shape)
+
 
         product_aa_pp = np.matmul((kas_ss_p - mn_a_p).reshape(-1, 1), (kas_ss_p - mn_a_p).reshape(1, -1))
         distances_aa_pp = np.zeros(product_aa_pp.shape)
