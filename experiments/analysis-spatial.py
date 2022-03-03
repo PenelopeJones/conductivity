@@ -13,6 +13,230 @@ from utils.util import train_test_split, train_valid_split, VanillaNN
 from preprocessing.utils.mda_util import mda_to_numpy
 
 
+def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
+    # anions = [n_snapshots, n_anions, 3]
+    x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
+    assert kas.shape == kcs.shape # [n_snapshots, n_anions]
+    print(kas.shape)
+    T = kas.shape[0] # number of snapshots
+    n = kas.shape[1] # number of anions
+
+    y_aa_pp = np.zeros(x.shape[0])
+    y_ac_pp = np.zeros(x.shape[0])
+    y_cc_pp = np.zeros(x.shape[0])
+    n_aa_pp = np.zeros(x.shape[0])
+    n_ac_pp = np.zeros(x.shape[0])
+    n_cc_pp = np.zeros(x.shape[0])
+
+    y_aa_pn = np.zeros(x.shape[0])
+    y_ac_pn = np.zeros(x.shape[0])
+    y_cc_pn = np.zeros(x.shape[0])
+    n_aa_pn = np.zeros(x.shape[0])
+    n_ac_pn = np.zeros(x.shape[0])
+    n_cc_pn = np.zeros(x.shape[0])
+
+    y_aa_nn = np.zeros(x.shape[0])
+    y_ac_nn = np.zeros(x.shape[0])
+    y_cc_nn = np.zeros(x.shape[0])
+    n_aa_nn = np.zeros(x.shape[0])
+    n_ac_nn = np.zeros(x.shape[0])
+    n_cc_nn = np.zeros(x.shape[0])
+
+    ss_mn_a = np.mean(kas, axis=1) # Average conductivity per snapshot
+    ss_mn_c = np.mean(kcs, axis=1)
+
+
+    for tau in range(0, T):
+
+        anions = anion_positions[tau, :, :]
+        cations = cation_positions[tau, :, :]
+        kas_ss = kas[tau, :]
+        kcs_ss = kcs[tau, :]
+        kas_ss_p = kas_ss[np.where(kas_ss>=0)]
+        kas_ss_n = kas_ss[np.where(kas_ss<0)]
+        kcs_ss_p = kcs_ss[np.where(kcs_ss>=0)]
+        kcs_ss_n = kcs_ss[np.where(kcs_ss<0)]
+
+        anions_p = anions[np.where(kas_ss>=0), :]
+        anions_n = anions[np.where(kas_ss<0), :]
+        cations_p = anions[np.where(kcs_ss>=0), :]
+        cations_n = anions[np.where(kcs_ss<0), :]
+
+        mn_a_p = np.mean(kas_ss_p)
+        mn_a_n = np.mean(kas_ss_n)
+        mn_c_p = np.mean(kcs_ss_p)
+        mn_c_n = np.mean(kcs_ss_n)
+
+        product_aa_pp = np.matmul((kas_ss_p - mn_a_p).reshape(-1, 1), (kas_ss_p - mn_a_p).reshape(1, -1))
+        distances_aa_pp = np.zeros(product_aa_pp.shape)
+
+        product_aa_pn = np.matmul((kas_ss_p - mn_a_p).reshape(-1, 1), (kas_ss_n - mn_a_n).reshape(1, -1))
+        distances_aa_pn = np.zeros(product_aa_pn.shape)
+
+        product_aa_nn = np.matmul((kas_ss_n - mn_a_n).reshape(-1, 1), (kas_ss_n - mn_a_n).reshape(1, -1))
+        distances_aa_nn = np.zeros(product_aa_nn.shape)
+
+        product_ac_pp = np.matmul((kas_ss_p - mn_a_p).reshape(-1, 1), (kcs_ss_p - mn_c_p).reshape(1, -1))
+        distances_ac_pp = np.zeros(product_ac_pp.shape)
+
+        product_ac_pn = np.matmul((kas_ss_p - mn_a_p).reshape(-1, 1), (kcs_ss_n - mn_c_n).reshape(1, -1))
+        distances_ac_pn = np.zeros(product_ac_pn.shape)
+
+        product_ac_nn = np.matmul((kas_ss_n - mn_a_n).reshape(-1, 1), (kcs_ss_n - mn_c_n).reshape(1, -1))
+        distances_ac_nn = np.zeros(product_ac_nn.shape)
+
+        product_ac_np = np.matmul((kas_ss_n - mn_a_n).reshape(-1, 1), (kcs_ss_p - mn_c_p).reshape(1, -1))
+        distances_ac_np = np.zeros(product_ac_np.shape)
+
+        product_cc_pp = np.matmul((kcs_ss_p - mn_c_p).reshape(-1, 1), (kcs_ss_p - mn_c_p).reshape(1, -1))
+        distances_cc_pp = np.zeros(product_cc_pp.shape)
+
+        product_cc_pn = np.matmul((kcs_ss_p - mn_c_p).reshape(-1, 1), (kcs_ss_n - mn_c_n).reshape(1, -1))
+        distances_cc_pn = np.zeros(product_cc_pn.shape)
+
+        product_cc_nn = np.matmul((kcs_ss_n - mn_c_n).reshape(-1, 1), (kcs_ss_n - mn_c_n).reshape(1, -1))
+        distances_cc_nn = np.zeros(product_cc_nn.shape)
+
+"""
+        product_aa_nn = np.matmul((kas_ss_n - mn_a_n).reshape(-1, 1), (kas_ss_n - mn_a_n).reshape(1, -1))
+        distances_aa_nn = np.zeros(product_aa_nn.shape)
+
+
+        product_ac = np.matmul((kas[tau, :] - ss_mn_a[tau]).reshape(-1, 1), (kcs[tau, :] - ss_mn_c[tau]).reshape(1, -1))
+        distances_ac = np.zeros(product_ac.shape)
+
+        product_cc = np.matmul((kcs[tau, :] - ss_mn_c[tau]).reshape(-1, 1), (kcs[tau, :] - ss_mn_c[tau]).reshape(1, -1))
+        distances_cc = np.zeros(product_cc.shape)
+        """
+
+        for i in range(anions_p.shape[0]):
+            anion_p = anions_p[i, :].reshape(1, 3)
+            distances_aa_pp[i, :] = np.linalg.norm(np.minimum(((anions_p - anion_p) % box_length), ((anion_p - anions_p) % box_length)),
+                                             axis=1)
+            distances_ac_pp[i, :] = np.linalg.norm(np.minimum(((cations_p - anion_p) % box_length), ((anion_p - cations_p) % box_length)),
+                                             axis=1)
+            distances_aa_pn[i, :] = np.linalg.norm(np.minimum(((anions_n - anion_p) % box_length), ((anion_p - anions_n) % box_length)),
+                                             axis=1)
+            distances_ac_pn[i, :] = np.linalg.norm(np.minimum(((cations_n - anion_p) % box_length), ((anion_p - cations_n) % box_length)),
+                                             axis=1)
+
+        for i in range(anions_n.shape[0]):
+            anion_n = anions_n[i, :].reshape(1, 3)
+            distances_aa_nn[i, :] = np.linalg.norm(np.minimum(((anions_n - anion_n) % box_length), ((anion_n - anions_n) % box_length)),
+                                             axis=1)
+            distances_ac_nn[i, :] = np.linalg.norm(np.minimum(((cations_n - anion_n) % box_length), ((anion_n - cations_n) % box_length)),
+                                             axis=1)
+            distances_ac_np[i, :] = np.linalg.norm(np.minimum(((cations_p - anion_n) % box_length), ((anion_n - cations_p) % box_length)),
+                                             axis=1)
+
+        for i in range(cations_p.shape[0]):
+            cation_p = cations_p[i, :].reshape(1, 3)
+            distances_cc_pp[i, :] = np.linalg.norm(np.minimum(((cations_p - cation_p) % box_length), ((cation_p - cations_p) % box_length)),
+                                             axis=1)
+            distances_cc_pn[i, :] = np.linalg.norm(np.minimum(((cations_n - cation_p) % box_length), ((cation_p - cations_n) % box_length)),
+                                             axis=1)
+
+        for i in range(cations_n.shape[0]):
+            cation_n = cations_n[i, :].reshape(1, 3)
+            distances_cc_nn[i, :] = np.linalg.norm(np.minimum(((cations_n - cation_n) % box_length), ((cation_n - cations_n) % box_length)),
+                                             axis=1)
+
+
+
+
+        product_aa_pp = product_aa_pp.reshape(-1)
+        distances_aa_pp = distances_aa_pp.reshape(-1)
+
+        product_aa_pn = product_aa_pn.reshape(-1)
+        distances_aa_pn = distances_aa_pn.reshape(-1)
+
+        product_aa_nn = product_aa_nn.reshape(-1)
+        distances_aa_nn = distances_aa_nn.reshape(-1)
+
+        product_ac_pp = product_ac_pp.reshape(-1)
+        distances_ac_pp = distances_ac_pp.reshape(-1)
+
+        product_ac_pn = product_ac_pn.reshape(-1)
+        distances_ac_pn = distances_ac_pn.reshape(-1)
+
+        product_ac_nn = product_ac_nn.reshape(-1)
+        distances_ac_nn = distances_ac_nn.reshape(-1)
+
+        product_ac_np = product_ac_np.reshape(-1)
+        distances_ac_np = distances_ac_np.reshape(-1)
+
+        product_cc_pp = product_cc_pp.reshape(-1)
+        distances_cc_pp = distances_cc_pp.reshape(-1)
+
+        product_cc_pn = product_cc_pn.reshape(-1)
+        distances_cc_pn = distances_cc_pn.reshape(-1)
+
+        product_cc_nn = product_cc_nn.reshape(-1)
+        distances_cc_nn = distances_cc_nn.reshape(-1)
+
+        for j in range(x.shape[0]):
+            selected_aa_pp = product_aa_pp[np.where(np.abs(distances_aa_pp - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_aa_pn = product_aa_pn[np.where(np.abs(distances_aa_pn - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_aa_nn = product_aa_nn[np.where(np.abs(distances_aa_nn - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_ac_pp = product_ac_pp[np.where(np.abs(distances_ac_pp - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_ac_pn = product_ac_pn[np.where(np.abs(distances_ac_pn - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_ac_nn = product_ac_nn[np.where(np.abs(distances_ac_nn - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_ac_np = product_ac_np[np.where(np.abs(distances_ac_np - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_cc_pp = product_cc_pp[np.where(np.abs(distances_cc_pp - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_cc_pn = product_cc_pn[np.where(np.abs(distances_cc_pn - x[j]) < 0.5*bin_size)].reshape(-1)
+            selected_cc_nn = product_cc_nn[np.where(np.abs(distances_cc_nn - x[j]) < 0.5*bin_size)].reshape(-1)
+
+            y_aa_pp[j] += selected_aa_pp.sum()
+            n_aa_pp[j] += selected_aa_pp.shape[0]
+            y_aa_pn[j] += selected_aa_pn.sum()
+            n_aa_pn[j] += selected_aa_pn.shape[0]
+            y_aa_nn[j] += selected_aa_nn.sum()
+            n_aa_nn[j] += selected_aa_nn.shape[0]
+
+            y_ac_pp[j] += selected_ac_pp.sum()
+            n_ac_pp[j] += selected_ac_pp.shape[0]
+            y_ac_pn[j] += selected_ac_pn.sum()
+            n_ac_pn[j] += selected_ac_pn.shape[0]
+            y_ac_nn[j] += selected_ac_nn.sum()
+            n_ac_nn[j] += selected_ac_nn.shape[0]
+            y_ac_pn[j] += selected_ac_np.sum()
+            n_ac_pn[j] += selected_ac_np.shape[0]
+
+            y_aa_pp[j] += selected_cc_pp.sum()
+            n_aa_pp[j] += selected_cc_pp.shape[0]
+            y_aa_pn[j] += selected_cc_pn.sum()
+            n_aa_pn[j] += selected_cc_pn.shape[0]
+            y_aa_nn[j] += selected_cc_nn.sum()
+            n_aa_nn[j] += selected_cc_nn.shape[0]
+
+    scf_aa_pp = np.zeros_like(y_aa_pp)
+    scf_aa_pn = np.zeros_like(y_aa_pn)
+    scf_aa_nn = np.zeros_like(y_aa_nn)
+    scf_ac_pp = np.zeros_like(y_ac_pp)
+    scf_ac_pn = np.zeros_like(y_ac_pn)
+    scf_ac_nn = np.zeros_like(y_ac_nn)
+
+    non_zero = n_aa_pp != 0
+    scf_aa_pp[non_zero] = np.divide(y_aa_pp[non_zero], n_aa_pp[non_zero])
+
+    non_zero = n_aa_pn != 0
+    scf_aa_pn[non_zero] = np.divide(y_aa_pn[non_zero], n_aa_pn[non_zero])
+
+    non_zero = n_aa_nn != 0
+    scf_aa_nn[non_zero] = np.divide(y_aa_nn[non_zero], n_aa_nn[non_zero])
+
+    non_zero = n_ac_pp != 0
+    scf_ac_pp[non_zero] = np.divide(y_ac_pp[non_zero], n_ac_pp[non_zero])
+
+    non_zero = n_ac_pn != 0
+    scf_ac_pn[non_zero] = np.divide(y_ac_pn[non_zero], n_ac_pn[non_zero])
+
+    non_zero = n_ac_nn != 0
+    scf_ac_nn[non_zero] = np.divide(y_ac_nn[non_zero], n_ac_nn[non_zero])
+
+    return x, scf_aa_pp, scf_aa_pn, scf_aa_nn, scf_ac_pp, scf_ac_pn, scf_ac_nn
+
+
 def spatial_correlation_function(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_r_value=4.0, bin_size=0.1, box_length=12.0):
     # anions = [n_snapshots, n_anions, 3]
     x = np.arange(min_r_value+0.5*bin_size, max_r_value+0.5*bin_size, bin_size)
@@ -259,8 +483,8 @@ def main(args):
     if not os.path.exists(pts + 'predictions/spatial/'):
         os.makedirs(pts + 'predictions/spatial/')
 
-    #np.save(pts + 'predictions/spatial/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
-    #np.save(pts + 'predictions/spatial/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
+    np.save(pts + 'predictions/spatial/local_pred_{}_{}_anions'.format(conc, lb).replace('.', '-') + '.npy', kas)
+    np.save(pts + 'predictions/spatial/local_pred_{}_{}_cations'.format(conc, lb).replace('.', '-') + '.npy', kcs)
 
     if not os.path.exists(pts + 'correlation_functions/spatial/'):
         os.makedirs(pts + 'correlation_functions/spatial/')
@@ -275,6 +499,25 @@ def main(args):
     np.save(pts + 'correlation_functions/spatial/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
     np.save(pts + 'correlation_functions/spatial/scf_aa_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa)
     np.save(pts + 'correlation_functions/spatial/scf_ac_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac)
+
+    x, scf_aa_pp, scf_aa_pn, scf_aa_nn, scf_ac_pp, scf_ac_pn, scf_ac_nn = partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=min_r_value, max_r_value=max_r_value, bin_size=bin_size,box_length=box_length)
+
+    print(np.round(100*scf_aa_pp, decimals=1))
+    print(np.round(100*scf_aa_pn, decimals=1))
+    print(np.round(100*scf_aa_nn, decimals=1))
+    print(np.round(100*scf_ac_pp, decimals=1))
+    print(np.round(100*scf_ac_pn, decimals=1))
+    print(np.round(100*scf_ac_nn, decimals=1))
+
+    if not os.path.exists(pts + 'correlation_functions/spatial/partial/'):
+        os.makedirs(pts + 'correlation_functions/spatial/partial/')
+    np.save(pts + 'correlation_functions/spatial/partial/bin_positions_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', x)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_aa_pp_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa_pp)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_aa_pn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa_pn)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_aa_nn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_aa_nn)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_ac_pp_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac_pp)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_ac_pn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac_pn)
+    np.save(pts + 'correlation_functions/spatial/partial/scf_ac_nn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', scf_ac_nn)
 
 
 if __name__ == "__main__":
