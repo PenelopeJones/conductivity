@@ -56,16 +56,17 @@ def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_
         kcs_ss_p = kcs_ss[np.where(kcs_ss>=0)]
         kcs_ss_n = kcs_ss[np.where(kcs_ss<0)]
 
-        anions_p = anions[np.where(kas_ss>=0), :]
-        anions_n = anions[np.where(kas_ss<0), :]
-        cations_p = cations[np.where(kcs_ss>=0), :]
-        cations_n = cations[np.where(kcs_ss<0), :]
+        anions_p = np.squeeze(anions[np.where(kas_ss>=0), :], axis=0)
+        anions_n = np.squeeze(anions[np.where(kas_ss<0), :], axis=0)
+        cations_p = np.squeeze(cations[np.where(kcs_ss>=0), :], axis=0)
+        cations_n = np.squeeze(cations[np.where(kcs_ss<0), :], axis=0)
 
         mn_a_p = np.mean(kas_ss_p)
         mn_a_n = np.mean(kas_ss_n)
         mn_c_p = np.mean(kcs_ss_p)
         mn_c_n = np.mean(kcs_ss_n)
-
+        print(anions.shape)
+        print(cations.shape)
         print(anions_p.shape)
         print(cations_p.shape)
         print(anions_n.shape)
