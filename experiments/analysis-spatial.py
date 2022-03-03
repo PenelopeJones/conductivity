@@ -45,7 +45,6 @@ def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_
     ss_mn_a = np.mean(kas, axis=1) # Average conductivity per snapshot
     ss_mn_c = np.mean(kcs, axis=1)
 
-
     for tau in range(0, T):
 
         anions = anion_positions[tau, :, :]
@@ -97,18 +96,6 @@ def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_
         product_cc_nn = np.matmul((kcs_ss_n - mn_c_n).reshape(-1, 1), (kcs_ss_n - mn_c_n).reshape(1, -1))
         distances_cc_nn = np.zeros(product_cc_nn.shape)
 
-"""
-        product_aa_nn = np.matmul((kas_ss_n - mn_a_n).reshape(-1, 1), (kas_ss_n - mn_a_n).reshape(1, -1))
-        distances_aa_nn = np.zeros(product_aa_nn.shape)
-
-
-        product_ac = np.matmul((kas[tau, :] - ss_mn_a[tau]).reshape(-1, 1), (kcs[tau, :] - ss_mn_c[tau]).reshape(1, -1))
-        distances_ac = np.zeros(product_ac.shape)
-
-        product_cc = np.matmul((kcs[tau, :] - ss_mn_c[tau]).reshape(-1, 1), (kcs[tau, :] - ss_mn_c[tau]).reshape(1, -1))
-        distances_cc = np.zeros(product_cc.shape)
-        """
-
         for i in range(anions_p.shape[0]):
             anion_p = anions_p[i, :].reshape(1, 3)
             distances_aa_pp[i, :] = np.linalg.norm(np.minimum(((anions_p - anion_p) % box_length), ((anion_p - anions_p) % box_length)),
@@ -140,9 +127,6 @@ def partial_scf(anion_positions, cation_positions, kas, kcs, min_r_value=0, max_
             cation_n = cations_n[i, :].reshape(1, 3)
             distances_cc_nn[i, :] = np.linalg.norm(np.minimum(((cations_n - cation_n) % box_length), ((cation_n - cations_n) % box_length)),
                                              axis=1)
-
-
-
 
         product_aa_pp = product_aa_pp.reshape(-1)
         distances_aa_pp = distances_aa_pp.reshape(-1)
