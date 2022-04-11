@@ -41,7 +41,7 @@ def compute_histogram(ks, time_matrix, lower_k, upper_k, time_bins):
 
     mid_k = 0.5*(lower_k + upper_k)
     bin_size = upper_k - lower_k
-    times = time_matrix[np.where(np.abs(ks - mid_bin) <= 0.5*bin_size)]
+    times = time_matrix[np.where(np.abs(ks - mid_k) <= 0.5*bin_size)]
 
     counts, _ = np.histogram(times, bins=time_bins)
     return counts
