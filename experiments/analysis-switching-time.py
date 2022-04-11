@@ -44,6 +44,7 @@ def compute_histogram(ks, time_matrix, lower_k, upper_k, time_bins):
     times = time_matrix[np.where(np.abs(ks - mid_k) <= 0.5*bin_size)]
 
     counts, _ = np.histogram(times, bins=time_bins)
+    pdb.set_trace()
     return counts
 
 
@@ -237,7 +238,7 @@ def main(args):
 
     ks = np.hstack([kas, kcs])
     k_bins = np.arange(-1.75, 1.75, 0.25)
-    time_bins = np.arange(0.5, 100.5, 1.0)
+    time_bins = np.arange(0.5, 10.5, 1.0)
 
     hist_matrix = compute_histograms(ks, k_bins, time_bins)
     np.save(pts + 'predictions/correlation_functions/temporal/switching/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
