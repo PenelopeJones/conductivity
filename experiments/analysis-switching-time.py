@@ -44,7 +44,7 @@ def compute_histogram(ks, time_matrix, lower_k, upper_k, time_bins):
     times = time_matrix[np.where(np.abs(ks - mid_k) <= 0.5*bin_size)]
 
     counts, _ = np.histogram(times, bins=time_bins)
-    pdb.set_trace()
+
     return counts
 
 
