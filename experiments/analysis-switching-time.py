@@ -23,7 +23,7 @@ def measure_switching_times(ks):
 
     time_matrix = np.zeros(ks.shape) # initialise matrix to store switching times
 
-    idx = np.where(diff_matrix ! = 0) # particles which switch sign in next timeframe last 1 snapshot
+    idx = np.where(diff_matrix != 0) # particles which switch sign in next timeframe last 1 snapshot
 
     count = 1
     k = count + 1
@@ -34,6 +34,8 @@ def measure_switching_times(ks):
         idx = np.where((diff_matrix != 0) & (time_matrix[:-k] == 0))
         count += 1
         k +=1
+
+    pdb.set_trace()
 
     return time_matrix
 
@@ -236,8 +238,8 @@ def main(args):
         os.makedirs(pts + 'predictions/correlation_functions/temporal/switching/')
 
     ks = np.hstack([kas, kcs])
-    k_bins=np.arange(-1.75, 1.75, 0.25)
-    time_bins=np.arange(0.5, 10.5, 1.0)
+    k_bins = np.arange(-1.75, 1.75, 0.25)
+    time_bins = np.arange(0.5, 10.5, 1.0)
 
     hist_matrix = compute_histograms(ks, k_bins, time_bins)
     np.save(pts + 'predictions/correlation_functions/temporal/switching/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
