@@ -35,8 +35,6 @@ def measure_switching_times(ks):
         count += 1
         k +=1
 
-    pdb.set_trace()
-
     return time_matrix
 
 def compute_histogram(ks, time_matrix, lower_k, upper_k, time_bins):
@@ -55,7 +53,7 @@ def compute_histograms(ks, k_bins=np.arange(-1.5, 1.75, 0.25), time_bins=np.aran
     n = ks.shape[1] # number of particles
 
     time_matrix = measure_switching_times(ks) # matrix of time taken to switch sign
-    hist_matrix = np.zeros(len(k_bins) - 1, len(time_bins) - 1)
+    hist_matrix = np.zeros((len(k_bins) - 1, len(time_bins) - 1))
     for i in range(len(k_bins) - 1):
         lower_k = k_bins[i]
         upper_k = k_bins[i+1]
@@ -239,7 +237,7 @@ def main(args):
 
     ks = np.hstack([kas, kcs])
     k_bins = np.arange(-1.75, 1.75, 0.25)
-    time_bins = np.arange(0.5, 10.5, 1.0)
+    time_bins = np.arange(0.5, 100.5, 1.0)
 
     hist_matrix = compute_histograms(ks, k_bins, time_bins)
     np.save(pts + 'predictions/correlation_functions/temporal/switching/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
