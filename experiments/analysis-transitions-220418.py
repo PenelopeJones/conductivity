@@ -53,8 +53,6 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
     start_matrix = bin_matrix[:-1, :]
     end_matrix = bin_matrix[1:, :]
 
-    pdb.set_trace()
-
     for i in range(n_bins):
         if null_count[i] > 0:
             for j in range(n_bins):
@@ -64,11 +62,10 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
         else:
             continue
 
-    pdb.set_trace()
     print(transition_matrix)
     print(null_matrix)
 
-    return transition_matrix, null_matrix
+    return transition_matrix, null_matrix, null_count
 
 
 
@@ -294,8 +291,8 @@ def main(args):
     print(kas.shape)
     print(kcs.shape)
 
-    if not os.path.exists(pts + 'predictions/correlation_functions/temporal/switching/'):
-        os.makedirs(pts + 'predictions/correlation_functions/temporal/switching/')
+    if not os.path.exists(pts + 'predictions/correlation_functions/temporal/transitions/'):
+        os.makedirs(pts + 'predictions/correlation_functions/temporal/transitions/')
 
     if not os.path.exists(pts + 'predictions/trajectories/'):
         os.makedirs(pts + 'predictions/trajectories/')
@@ -304,13 +301,14 @@ def main(args):
 
     np.save(pts + 'predictions/trajectories/ks_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ks)
 
-    k_bins = np.arange(-1.75, 1.75, 0.25)
+    k_bins = np.arange(-0.5, 0.5, 0.25)
 
-    transition_probs, null_probs = measure_transitions(ks, k_bins)
+    transition_probs, null_probs, null_count = measure_transitions(ks, k_bins)
 
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/transition_probs_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', transition_probs)
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/null_probs_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', null_probs)
+    np.save(pts + 'predictions/correlation_functions/temporal/transitions/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
+    np.save(pts + 'predictions/correlation_functions/temporal/transitions/transition_probs_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', transition_probs)
+    np.save(pts + 'predictions/correlation_functions/temporal/transitions/null_probs_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', null_probs)
+    np.save(pts + 'predictions/correlation_functions/temporal/transitions/null_count_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', null_count)
 
 
 
