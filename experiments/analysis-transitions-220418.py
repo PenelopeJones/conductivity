@@ -31,7 +31,7 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
         upper_k1 = k_bins[i]
         mid_k = 0.5*(lower_k1 + upper_k1)
         bin_size = upper_k1 - lower_k1
-        idx = np.where(np.abs(ks - mid_k) <= 0.5*bin_size) # locate which ions are in this bin
+        idx = np.where((ks < upper_k1) & (ks >=lower_k1)) # locate which ions are in this bin
         bin_matrix[idx] = i + 1
         null_count[i] = len(idx[0]) # number of ions in bin i
         lower_k1 = k_bins[i]
