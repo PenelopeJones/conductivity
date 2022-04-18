@@ -61,14 +61,10 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
                 idx = np.where((start_matrix == (i+1)) & (end_matrix == (j+1)))
                 num_ij = len(idx[0])
                 transition_matrix[i, j] = num_ij / null_count[i]
-
-            pdb.set_trace()
-            assert np.sum(transition_matrix[i, :]) == 1, "Transition probabilities don't sum to 1"
         else:
             continue
 
     pdb.set_trace()
-
     print(transition_matrix)
     print(null_matrix)
 
