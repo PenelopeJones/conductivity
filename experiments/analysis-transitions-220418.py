@@ -42,6 +42,7 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
     idx = np.where((ks < upper_k1) & (ks >=lower_k1)) # locate which ions are in this bin
     bin_matrix[idx] = i + 1
     null_count[-1] = len(idx[0]) # number of ions in bin i
+    print(null_count)
 
     assert len(np.where(bin_matrix == 0)[0]) == 0, "All particles should be assigned to a bin."
 
@@ -57,12 +58,15 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
             for j in range(n_bins):
                 idx = np.where((start_matrix == (i+1)) & (end_matrix == (j+1)))
                 num_ij = len(idx[0])
+                print(num_ij)
                 transition_matrix[i, j] = num_ij / null_count[i]
+        pdb.set_trace()
         else:
             continue
 
     print(transition_matrix)
     print(null_matrix)
+    print(null_count)
 
     return transition_matrix, null_matrix, null_count
 
