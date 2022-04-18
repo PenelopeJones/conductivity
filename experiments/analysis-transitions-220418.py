@@ -48,7 +48,6 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
     n = np.sum(null_count)
     null_matrix = np.tile(null_count / float(n), (n_bins, 1))
     assert null_matrix.shape == (n_bins, n_bins), "Null matrix is not of correct shape"
-    assert np.sum(null_matrix[1, :]) == 1.0, "Null transition probabilities don't sum to 1"
 
     start_matrix = bin_matrix[:-1, :]
     end_matrix = bin_matrix[1:, :]
