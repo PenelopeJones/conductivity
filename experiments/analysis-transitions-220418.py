@@ -39,7 +39,7 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
     upper_k1 = 10000
     mid_k = 0.5*(lower_k1 + upper_k1)
     bin_size = upper_k1 - lower_k1
-    idx = np.where(np.abs(ks - mid_k) <= 0.5*bin_size) # locate which ions are in this bin
+    idx = np.where((ks < upper_k1) & (ks >=lower_k1)) # locate which ions are in this bin
     bin_matrix[idx] = i + 1
     null_count[-1] = len(idx[0]) # number of ions in bin i
 
@@ -300,7 +300,7 @@ def main(args):
 
     np.save(pts + 'predictions/trajectories/ks_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ks)
 
-    k_bins = np.arange(-0.5, 0.5, 0.25)
+    k_bins = np.arange(-0.5, 0.55, 0.25)
 
     transition_probs, null_probs, null_count = measure_transitions(ks, k_bins)
 
