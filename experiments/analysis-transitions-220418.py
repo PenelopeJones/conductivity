@@ -54,12 +54,15 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
     end_matrix = bin_matrix[1:, :]
 
     for i in range(n_bins):
+        denom = len(np.where(start_matrix == (i+1))[0])
+        print(null_count[i])
+        print(denom)
         if null_count[i] > 0:
             for j in range(n_bins):
                 idx = np.where((start_matrix == (i+1)) & (end_matrix == (j+1)))
                 num_ij = len(idx[0])
                 print(num_ij)
-                transition_matrix[i, j] = num_ij / null_count[i]
+                transition_matrix[i, j] = num_ij / denom
             pdb.set_trace()
         else:
             continue
