@@ -60,7 +60,7 @@ def measure_transitions(ks, k_bins=[-0.25, 0, 0.25]):
                 num_ij = len(idx[0])
                 print(num_ij)
                 transition_matrix[i, j] = num_ij / null_count[i]
-        pdb.set_trace()
+            pdb.set_trace()
         else:
             continue
 
