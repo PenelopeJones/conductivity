@@ -103,11 +103,12 @@ def create_position_arrays(u, anions, cations, solvent):
     return anion_positions, cation_positions, solvent_positions
 
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
-    dcd_file = '{}full_trajectories/conc{}_lb{}.dcd'.format(ptd, conc, lb)
+    dcd_file = '{}/conc{}_lb{}.dcd'.format(ptdf, conc, lb)
     if conc == 0.001:
         ptdf = ptd + '0001/'
     else:
         ptdf = ptd + '{}/'.format(conc)
+    dcd_file = '{}/conc{}_lb{}_0o5tau.dcd'.format(ptdf, conc, lb)
     data_file = '{}initial_config_conc{}.gsd'.format(ptdf, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
@@ -197,8 +198,8 @@ def main(args):
     kcs = []
     for file_id in range(file_ids):
         try:
-            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
-            xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_temporal_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xa = np.load(ptd + 'processed/X_{}_{}_soap_anion_0o5tau_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
+            xc = np.load(ptd + 'processed/X_{}_{}_soap_cation_0o5tau_{}'.format(conc, lb, file_id).replace('.', '-') + '.npy')
             preds_a = []
             preds_c = []
             for n_split in range(n_splits):
@@ -233,17 +234,17 @@ def main(args):
     print(kas.shape)
     print(kcs.shape)
 
-    if not os.path.exists(pts + 'predictions/correlation_functions/temporal/switching/'):
-        os.makedirs(pts + 'predictions/correlation_functions/temporal/switching/')
+    if not os.path.exists(pts + 'predictions/correlation_functions/temporal/switching-220513/'):
+        os.makedirs(pts + 'predictions/correlation_functions/temporal/switching-220513/')
 
     ks = np.hstack([kas, kcs])
     k_bins = np.arange(-1.75, 1.75, 0.25)
     time_bins = np.arange(0.5, 10.5, 1.0)
 
     hist_matrix = compute_histograms(ks, k_bins, time_bins)
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/time_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', time_bins)
-    np.save(pts + 'predictions/correlation_functions/temporal/switching/switching_time_counter_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', hist_matrix)
+    np.save(pts + 'predictions/correlation_functions/temporal/switching-220513/k_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', k_bins)
+    np.save(pts + 'predictions/correlation_functions/temporal/switching-220513/time_bins_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', time_bins)
+    np.save(pts + 'predictions/correlation_functions/temporal/switching-220513/switching_time_counter_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', hist_matrix)
 
 
 
