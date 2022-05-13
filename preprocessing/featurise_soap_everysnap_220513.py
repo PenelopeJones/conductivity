@@ -17,7 +17,7 @@ import numpy as np
 import MDAnalysis as mda
 
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
-    dcd_file = '{}conc{}_lb{}o5tau.dcd'.format(ptd, conc, lb)
+    dcd_file = '{}conc{}_lb{}0o5tau.dcd'.format(ptd, conc, lb)
     data_file = '{}initial_config_conc{}.gsd'.format(ptd, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
@@ -72,8 +72,8 @@ def main(args):
 
     split = 0
 
-    ptfa = pts + 'X_{}_{}_soap_anion_o5tau_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
-    ptfc = pts + 'X_{}_{}_soap_cation_o5tau_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+    ptfa = pts + 'X_{}_{}_soap_anion_0o5tau_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
+    ptfc = pts + 'X_{}_{}_soap_cation_0o5tau_{}'.format(conc, lb, split).replace('.', '-') + '.npy'
     x_cations = []
     x_anions = []
 
