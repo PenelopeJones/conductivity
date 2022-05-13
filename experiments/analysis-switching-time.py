@@ -103,7 +103,6 @@ def create_position_arrays(u, anions, cations, solvent):
     return anion_positions, cation_positions, solvent_positions
 
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
-    dcd_file = '{}/conc{}_lb{}.dcd'.format(ptdf, conc, lb)
     if conc == 0.001:
         ptdf = ptd + '0001/'
     else:
