@@ -101,11 +101,11 @@ def create_position_arrays(u, anions, cations, solvent):
     return anion_positions, cation_positions, solvent_positions
 
 def mda_to_numpy(conc, lb, ptd='../../data/md-trajectories/'):
-    dcd_file = '{}conc{}_lb{}_0o5tau.dcd'.format(ptd, conc, lb)
     if conc == 0.001:
         ptdf = ptd + '0001/'
     else:
         ptdf = ptd + '{}/'.format(conc)
+        dcd_file = '{}/conc{}_lb{}_0o5tau.dcd'.format(ptdf, conc, lb)
     data_file = '{}initial_config_conc{}.gsd'.format(ptdf, conc)
     check_files_exist(dcd_file, data_file)
     u = create_mda(dcd_file, data_file)
@@ -344,6 +344,10 @@ def main(args):
         os.makedirs(pts + 'predictions/correlation_functions/temporal/220513/')
 
     tcf1_n, tcf1_p, tcf2_n, tcf2_p = partial_tcf(kas, kcs)
+    ss_mn, tcf = temporal_correlation_function(kas, kcs)
+    np.save(pts + 'predictions/correlation_functions/temporal/220513/tcf_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', tcf)
+    np.save(pts + 'predictions/correlation_functions/temporal/220513/ss_mn_{}_{}'.format(conc, lb).replace('.', '-') + '.npy', ss_mn)
+    print(np.round(1000*tcf[0:100], decimals=2))
 
     print(np.round(1000*tcf1_n[0:100], decimals=2))
     print(np.round(1000*tcf1_p[0:100], decimals=2))
